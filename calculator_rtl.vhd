@@ -857,7 +857,7 @@ architecture logic of calculator_rtl is
 					end if;
 					
 				when initialize_derivative=>
-						ledg(1) <= '1';
+					ledg(1) <= '1';
 					float_mult_in1(0) 	<= fp_const(31-degree_min);
 					float_mult_in2(0) 	<= float_in0;
 					float_mult_in1(1) 	<= fp_const((31-degree_min)+1);
