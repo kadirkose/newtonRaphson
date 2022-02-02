@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file path="fp_comparator_sim/dspba_library_package.vhd" type="VHDL" />
+ <file path="fp_comparator_sim/dspba_library.vhd" type="VHDL" />
+ <file path="fp_comparator_sim/fp_comparator.vhd" type="VHDL" />
+ <topLevel name="fp_comparator" />
+ <deviceFamily name="cyclonev" />
+</simPackage>

@@ -1,0 +1,97 @@
+{
+	"partitions" : [
+		{
+			"name" : "Top",
+			"pins" : [
+				{
+					"name" : "UART_TXD",
+					"strict" : false
+				},
+				{
+					"name" : "ledg[0]",
+					"strict" : false
+				},
+				{
+					"name" : "ledg[1]",
+					"strict" : false
+				},
+				{
+					"name" : "ledg[2]",
+					"strict" : false
+				},
+				{
+					"name" : "ledg[3]",
+					"strict" : false
+				},
+				{
+					"name" : "ledg[4]",
+					"strict" : false
+				},
+				{
+					"name" : "ledg[5]",
+					"strict" : false
+				},
+				{
+					"name" : "ledg[6]",
+					"strict" : false
+				},
+				{
+					"name" : "ledg[7]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[0]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[1]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[2]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[3]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[4]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[5]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[6]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[7]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[8]",
+					"strict" : false
+				},
+				{
+					"name" : "leds[9]",
+					"strict" : false
+				},
+				{
+					"name" : "clk",
+					"strict" : false
+				},
+				{
+					"name" : "reset",
+					"strict" : false
+				},
+				{
+					"name" : "UART_RXD",
+					"strict" : false
+				}
+			]
+		}
+	]
+}

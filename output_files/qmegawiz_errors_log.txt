@@ -1,0 +1,11 @@
+
+
+/home/kadirkose/andaWorkspace/newtonRaphson/fp_comparator.vhd
+
+Feb 02 02PM:38:28>: Megafunction FP_FUNCTIONS Intel FPGA IP v20.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted
+
+/home/kadirkose/andaWorkspace/newtonRaphson/fp_comparator.vhd
+
+Feb 02 02PM:38:28>: Megafunction FP_FUNCTIONS Intel FPGA IP v20.1 is not listed in any 
+wizard.lst file in the specified library path(s).Wizard launch aborted

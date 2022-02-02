@@ -1,0 +1,71 @@
+
+State Machine - |newton_raphson|calculator_rtl:calculator_block|state
+Name state.complete_op state.complete_substractor state.initialize_substractor state.complete_division state.initialize_division state.complete_subs state.complete_der_subs state.initialize_subs_add5 state.initialize_subs_add4 state.initialize_subs_add3 state.initialize_subs_add2 state.initialize_subs_add1 state.initialize_subs state.initialize_der_subs state.select_substitute state.convert_sign state.complete_power state.initialize_power state.complete_der_power state.initialize_der_power state.complete_derivative state.initialize_derivative state.idle state.initialize_subs_calculator state.initialize_deriv_subs_calculator 
+state.initialize_deriv_subs_calculator 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+state.initialize_subs_calculator 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+state.idle 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
+state.initialize_derivative 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
+state.complete_derivative 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
+state.initialize_der_power 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
+state.complete_der_power 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
+state.initialize_power 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
+state.complete_power 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
+state.convert_sign 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+state.select_substitute 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
+state.initialize_der_subs 0 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
+state.initialize_subs 0 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
+state.initialize_subs_add1 0 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.initialize_subs_add2 0 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.initialize_subs_add3 0 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.initialize_subs_add4 0 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.initialize_subs_add5 0 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.complete_der_subs 0 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.complete_subs 0 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.initialize_division 0 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.complete_division 0 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.initialize_substractor 0 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.complete_substractor 0 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.complete_op 1 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+
+State Machine - |newton_raphson|calculator_rtl:calculator_block|ip_core_operation_wait:ip_core_wait_block|state
+Name state.div_wait state.pow_wait state.mult_wait state.add_wait state.idle 
+state.idle 0 0 0 0 0 
+state.add_wait 0 0 0 1 1 
+state.mult_wait 0 0 1 0 1 
+state.pow_wait 0 1 0 0 1 
+state.div_wait 1 0 0 0 1 
+
+State Machine - |newton_raphson|state
+Name state.get_min_degree state.reset_all_variable state.power_off state.send_result state.complete_compare state.initialize_compare state.complete_calculator state.initialize_calculator state.get_coefficients state.get_iteration_val state.get_error_val state.get_var_val state.degree_range_control state.get_max_degree state.idle 
+state.idle 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+state.get_max_degree 0 0 0 0 0 0 0 0 0 0 0 0 0 1 1 
+state.degree_range_control 0 0 0 0 0 0 0 0 0 0 0 0 1 0 1 
+state.get_var_val 0 0 0 0 0 0 0 0 0 0 0 1 0 0 1 
+state.get_error_val 0 0 0 0 0 0 0 0 0 0 1 0 0 0 1 
+state.get_iteration_val 0 0 0 0 0 0 0 0 0 1 0 0 0 0 1 
+state.get_coefficients 0 0 0 0 0 0 0 0 1 0 0 0 0 0 1 
+state.initialize_calculator 0 0 0 0 0 0 0 1 0 0 0 0 0 0 1 
+state.complete_calculator 0 0 0 0 0 0 1 0 0 0 0 0 0 0 1 
+state.initialize_compare 0 0 0 0 0 1 0 0 0 0 0 0 0 0 1 
+state.complete_compare 0 0 0 0 1 0 0 0 0 0 0 0 0 0 1 
+state.send_result 0 0 0 1 0 0 0 0 0 0 0 0 0 0 1 
+state.power_off 0 0 1 0 0 0 0 0 0 0 0 0 0 0 1 
+state.reset_all_variable 0 1 0 0 0 0 0 0 0 0 0 0 0 0 1 
+state.get_min_degree 1 0 0 0 0 0 0 0 0 0 0 0 0 0 1 
+
+State Machine - |newton_raphson|UART:uart_block|UART_TX:uart_tx_i|tx_pstate
+Name tx_pstate.stopbit tx_pstate.paritybit tx_pstate.databits tx_pstate.startbit tx_pstate.txsync tx_pstate.idle 
+tx_pstate.idle 0 0 0 0 0 0 
+tx_pstate.txsync 0 0 0 0 1 1 
+tx_pstate.startbit 0 0 0 1 0 1 
+tx_pstate.databits 0 0 1 0 0 1 
+tx_pstate.paritybit 0 1 0 0 0 1 
+tx_pstate.stopbit 1 0 0 0 0 1 
+
+State Machine - |newton_raphson|UART:uart_block|UART_RX:uart_rx_i|fsm_pstate
+Name fsm_pstate.stopbit fsm_pstate.paritybit fsm_pstate.databits fsm_pstate.startbit fsm_pstate.idle 
+fsm_pstate.idle 0 0 0 0 0 
+fsm_pstate.startbit 0 0 0 1 1 
+fsm_pstate.databits 0 0 1 0 1 
+fsm_pstate.paritybit 0 1 0 0 1 
+fsm_pstate.stopbit 1 0 0 0 1 

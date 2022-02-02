@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<simPackage>
+ <file
+   path="fp_divider_sim/fp_divider_memoryC1_uid150_invTables_lutmem.hex"
+   type="HEX" />
+ <file
+   path="fp_divider_sim/fp_divider_memoryC0_uid146_invTables_lutmem.hex"
+   type="HEX" />
+ <file
+   path="fp_divider_sim/fp_divider_memoryC1_uid151_invTables_lutmem.hex"
+   type="HEX" />
+ <file
+   path="fp_divider_sim/fp_divider_memoryC0_uid147_invTables_lutmem.hex"
+   type="HEX" />
+ <file
+   path="fp_divider_sim/fp_divider_memoryC2_uid154_invTables_lutmem.hex"
+   type="HEX" />
+ <file path="fp_divider_sim/dspba_library_package.vhd" type="VHDL" />
+ <file path="fp_divider_sim/dspba_library.vhd" type="VHDL" />
+ <file path="fp_divider_sim/fp_divider.vhd" type="VHDL" />
+ <topLevel name="fp_divider" />
+ <deviceFamily name="cyclonev" />
+</simPackage>
