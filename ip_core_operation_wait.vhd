@@ -14,7 +14,7 @@ architecture logic of ip_core_operation_wait is
 
 signal cnt					: integer range 0 to 60:= 0;
 
-type machine is(idle, add_wait, mult_wait, pow_wait, div_wait);
+type machine is(idle, add_wait, mult_wait, pow_wait, div_wait, comp_wait);
 signal state: machine:= idle;
 
 begin
@@ -42,6 +42,8 @@ begin
 						state <= pow_wait;
 					elsif(ip_op_wait = "100") then			-- division operation 10 cycle
 						state <= div_wait;
+					elsif(ip_op_wait = "101") then			-- compare operation 10 cycle
+						state <= comp_wait;
 					end if;
 					
 					
@@ -79,6 +81,14 @@ begin
 						cnt 				<= 0;
 						state 			<= idle;
 					end if;		
+					
+				when comp_wait =>
+					cnt <= cnt + 1;
+					if(cnt = 4) then
+						ip_op_wait_ok 	<= '1';
+						cnt 				<= 0;
+						state 			<= idle;
+					end if;	
 
 					
 				when others =>

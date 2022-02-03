@@ -932,7 +932,7 @@ architecture logic of calculator_rtl is
 					end if;
 					
 				when complete_derivative=>
-						ledg(2) <= '1';
+					ledg(2) <= '1';
 					if(cnt = 32) then
 						cnt 	<= 0;
 						state <= initialize_der_power;
@@ -943,7 +943,7 @@ architecture logic of calculator_rtl is
 					end if;
 					
 				when initialize_der_power=> -- türevlide -31.derece için kontrol koy!!!!!
-						ledg(3) <= '1';
+					ledg(3) <= '1';
 					if(cnt < (degree_min + 1)) then
 						float_pow_in1 	<= variable_value_pos;
 						float_pow_in2 	<= '0' & fp_const((31-degree_min-1)+cnt)(30 downto 0);	-- convert all negative constants to positive

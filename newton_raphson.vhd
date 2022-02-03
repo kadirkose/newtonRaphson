@@ -107,6 +107,15 @@ architecture logic of newton_raphson is
 			areset 				: in std_logic
 		);
 	end component;
+	
+	component ip_core_operation_wait is
+		port(
+			clk					: in 	std_logic;
+			ip_wait_reset		: in 	std_logic;
+			ip_op_wait_ok		: out std_logic;
+			ip_op_wait			: in	std_logic_vector(2 downto 0):= "000"
+		);
+	end component;
 
 	signal cnt									: integer range 0 to 10000000:= 0;
 	signal count								: integer:= 0;
@@ -139,6 +148,10 @@ architecture logic of newton_raphson is
 	signal error_const_value		: std_logic_vector(31 downto 0):= (others => '0');
 	signal float_comp_in2			: std_logic_vector(31 downto 0):= (others => '0');
 	signal interation_limit			: std_logic_vector(31 downto 0):= (others => '0');
+	
+	signal ip_wait_reset				: std_logic;
+	signal ip_op_wait_ok				: std_logic;
+	signal ip_op_wait					: std_logic_vector(2 downto 0):= "000";
 
 	
 	type machine is(
@@ -237,9 +250,17 @@ architecture logic of newton_raphson is
 		clk    => clk,
 		areset => not reset,
 		a      => float_comp_in1,
-		b      => "00110010001010111100110001110111",--float_comp_in2,
+		b      => float_comp_in2,
 		q      => float_comp_out
 	);
+	
+	ip_core_wait_block: ip_core_operation_wait
+	port map(
+		clk				=> clk,
+		ip_wait_reset	=> ip_wait_reset,
+		ip_op_wait_ok	=> ip_op_wait_ok,
+		ip_op_wait		=> ip_op_wait
+	);		
 	
 	process(clk, reset)
 	begin
@@ -295,6 +316,7 @@ architecture logic of newton_raphson is
 			send_cycle_count			<= (others => '0');
 			error_const_value			<= (others => '0');
 			interation_limit			<= (others => '0');
+			float_comp_in1				<= (others => '0');
 		elsif(rising_edge(clk)) then
 			u_data_in_ready_prev <= u_data_in_ready;
 			case state is
@@ -421,8 +443,14 @@ architecture logic of newton_raphson is
 					float_comp_in1(31)	<= '0';
 					cycle_count <= cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
-					state 				<= complete_compare;
 					leds	 				<= "0100000000";	
+					ip_op_wait				<= "101";											-- karşılaştırma bekleme kodu
+					ip_wait_reset			<= '1';
+					if(ip_op_wait_ok= '1') then
+						ip_op_wait			<= "000";
+						ip_wait_reset		<= '0';
+						state 				<= complete_compare;
+					end if;
 					
 				when complete_compare =>
 					cycle_count <= cycle_count + 1;
