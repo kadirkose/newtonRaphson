@@ -17,7 +17,6 @@ entity newton_raphson is
 		reset						: in 		std_logic;
 		UART_TXD   				: out 	std_logic;
 		UART_RXD   				: in  	std_logic;
-		buton						: in 		std_logic:= '1';											
 		leds						: out 	std_logic_vector(9 downto 0):= (others => '0');	-- these connected to terasIC DE10-Lite LED pins
 		ledg						: out 	std_logic_vector(7 downto 0):= (others => '0')
 	);
@@ -117,12 +116,10 @@ architecture logic of newton_raphson is
 		);
 	end component;
 
-	signal cnt									: integer range 0 to 10000000:= 0;
+	signal cnt									: integer range 0 to 100:= 0;
 	signal count								: integer:= 0;
 	signal cycle_count						: std_logic_vector(31 downto 0):= (others => '0');
 	signal total_cycle_count				: std_logic_vector(31 downto 0):= (others => '0');
-	signal receive_cycle_count				: std_logic_vector(31 downto 0):= (others => '0');
-	signal send_cycle_count					: std_logic_vector(31 downto 0):= (others => '0');
 
 	
 	signal u_data_in, u_data_out			: std_logic_vector(7 downto 0);					-- internal UART signals 
@@ -135,8 +132,9 @@ architecture logic of newton_raphson is
 	signal degree_min, degree_max, degree	: integer:= 0;
 	
 	signal start_opr							: std_logic:= '0';
-	signal complete_calculator_flag		: std_logic;
-	signal calculator_result				: std_logic_vector(31 downto 0); 
+	signal complete_calculator_flag		: std_logic:= '0';
+	signal calculator_result				: std_logic_vector(31 downto 0);
+	signal newton_raphson_result			: std_logic_vector(31 downto 0); 
 	
 	type float32 is array(31 downto 0) of std_logic_vector(31 downto 0);
 	signal float_in		: float32:= (others => "00000000000000000000000000000000");
@@ -144,7 +142,7 @@ architecture logic of newton_raphson is
 	signal float_comp_in1			: std_logic_vector(31 downto 0):= (others => '0');
 	signal error_value				: std_logic_vector(31 downto 0):= (others => '0');
 	signal float_comp_out			: std_logic_vector(0 downto 0) := (others => '0');
-	signal iteration_count			: std_logic_vector(31 downto 0) := (others => '0');
+	signal iteration_count			: std_logic_vector(31 downto 0):= (others => '0');
 	signal error_const_value		: std_logic_vector(31 downto 0):= (others => '0');
 	signal float_comp_in2			: std_logic_vector(31 downto 0):= (others => '0');
 	signal interation_limit			: std_logic_vector(31 downto 0):= (others => '0');
@@ -165,6 +163,7 @@ architecture logic of newton_raphson is
 		initialize_calculator,
 		complete_calculator, 
 		initialize_compare,
+		wait_compare,
 		complete_compare,
 		send_result,
 		power_off,
@@ -277,7 +276,6 @@ architecture logic of newton_raphson is
 			degree						<= 0;	
 			start_opr					<= '0';			
 			leds 							<= "0000000000";
---			ledg							<= "00000000";
 			variable_value		  		<= (others => '0');
 			float_in(0)  				<= (others => '0');
 			float_in(1)  				<= (others => '0');
@@ -312,8 +310,6 @@ architecture logic of newton_raphson is
 			float_in(30)  				<= (others => '0');
 			float_in(31)  				<= (others => '0');
 			iteration_count			<= (others => '0');
-			receive_cycle_count		<= (others => '0');
-			send_cycle_count			<= (others => '0');
 			error_const_value			<= (others => '0');
 			interation_limit			<= (others => '0');
 			float_comp_in1				<= (others => '0');
@@ -323,13 +319,61 @@ architecture logic of newton_raphson is
 			
 				when idle =>
 					leds	 		<= "1111111111";
+					u_valid_in 					<= '0';
+					u_data_in 					<= "01010010";														-- ASCII 'R'
+					cnt 							<= 0;
+					count							<= 0;
+					cycle_count					<= (others => '0');
+					total_cycle_count			<= (others => '0');
+					state 						<= idle;
+					degree_min					<= 0;	
+					degree_max					<= 0;	
+					degree						<= 0;	
+					start_opr					<= '0';			
+					variable_value		  		<= (others => '0');
+					float_in(0)  				<= (others => '0');
+					float_in(1)  				<= (others => '0');
+					float_in(2)  				<= (others => '0');
+					float_in(3)  				<= (others => '0');
+					float_in(4)  				<= (others => '0');
+					float_in(5)  				<= (others => '0');
+					float_in(6) 				<= (others => '0');
+					float_in(7)  				<= (others => '0');
+					float_in(8)  				<= (others => '0');
+					float_in(9)  				<= (others => '0');
+					float_in(10)  				<= (others => '0');
+					float_in(11)				<= (others => '0');
+					float_in(12)  				<= (others => '0');
+					float_in(13)  				<= (others => '0');
+					float_in(14)  				<= (others => '0');
+					float_in(15)  				<= (others => '0');
+					float_in(16)  				<= (others => '0');
+					float_in(17)  				<= (others => '0');
+					float_in(18) 				<= (others => '0');
+					float_in(19)  				<= (others => '0');
+					float_in(20)  				<= (others => '0');
+					float_in(21)  				<= (others => '0');
+					float_in(22)  				<= (others => '0');
+					float_in(23)  				<= (others => '0');
+					float_in(24)  				<= (others => '0');
+					float_in(25)  				<= (others => '0');
+					float_in(26)  				<= (others => '0');
+					float_in(27)  				<= (others => '0');
+					float_in(28)  				<= (others => '0');
+					float_in(29)  				<= (others => '0');
+					float_in(30)  				<= (others => '0');
+					float_in(31)  				<= (others => '0');
+					iteration_count			<= (others => '0');
+					error_const_value			<= (others => '0');
+					interation_limit			<= (others => '0');
+					float_comp_in1				<= (others => '0');
+					start_opr	<= '0';
 					if(u_valid_out = '1') then																-- if data came from UART
 						state 	<= get_min_degree;
 					end if;
 			
 				when get_min_degree =>
 					leds	 		<= "0000000001";
-					receive_cycle_count <= receive_cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
 					degree_min 	<= to_integer(unsigned(u_data_out));
 					if(to_integer(unsigned(u_data_out)) > 31) then
@@ -339,7 +383,6 @@ architecture logic of newton_raphson is
 					end if;
 					
 				when get_max_degree =>
-					receive_cycle_count <= receive_cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
 					leds	 		<= "0000000010";
 					if(u_valid_out = '1') then																-- if data came from UART
@@ -352,7 +395,6 @@ architecture logic of newton_raphson is
 					end if;	
 					
 				when degree_range_control =>
-					receive_cycle_count <= receive_cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
 					leds	 		<= "0000000100";
 					if(degree_min + degree_max > 31) then												-- degree must be in range [-31,31] with maximum 32 coefficients
@@ -364,7 +406,6 @@ architecture logic of newton_raphson is
 					
 					
 				when get_var_val =>
-					receive_cycle_count <= receive_cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
 					leds	 		<= "0000001000";
 					if(u_valid_out = '1') then																-- if data came from UART	
@@ -377,7 +418,6 @@ architecture logic of newton_raphson is
 					end if;
 					
 				when get_error_val =>
-					receive_cycle_count <= receive_cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
 					leds	 		<= "0000010000";
 					if(u_valid_out = '1') then																-- if data came from UART	
@@ -390,7 +430,6 @@ architecture logic of newton_raphson is
 					end if;
 					
 				when get_iteration_val =>
-					receive_cycle_count <= receive_cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
 					leds	 		<= "0000100000";
 					if(u_valid_out = '1') then																-- if data came from UART	
@@ -403,7 +442,6 @@ architecture logic of newton_raphson is
 					end if;
 					
 				when get_coefficients =>
-					receive_cycle_count <= receive_cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
 					leds	 		<= "0001000000";
 					if(cnt = 4) then
@@ -435,6 +473,7 @@ architecture logic of newton_raphson is
 					if(complete_calculator_flag = '1') then
 						state 		<= initialize_compare;
 						start_opr 	<= '0';
+						newton_raphson_result <= calculator_result;
 					end if;
 					
 				when initialize_compare =>
@@ -443,9 +482,14 @@ architecture logic of newton_raphson is
 					float_comp_in1(31)	<= '0';
 					cycle_count <= cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
-					leds	 				<= "0100000000";	
+					leds	 				<= "0100000001";	
 					ip_op_wait				<= "101";											-- karşılaştırma bekleme kodu
 					ip_wait_reset			<= '1';
+					state <= wait_compare;
+
+				when wait_compare =>
+					total_cycle_count <= total_cycle_count + 1;
+					cycle_count <= cycle_count + 1;
 					if(ip_op_wait_ok= '1') then
 						ip_op_wait			<= "000";
 						ip_wait_reset		<= '0';
@@ -456,10 +500,10 @@ architecture logic of newton_raphson is
 					cycle_count <= cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
 					leds	 				<= "1000000001";	
-					if(to_integer(unsigned(iteration_count)) < to_integer(unsigned(interation_limit))) then
+					if(iteration_count < (interation_limit + 1)) then
 						if(float_comp_out = "0" ) then
 							state <= initialize_calculator;
-							variable_value <= calculator_result;
+							variable_value <= newton_raphson_result;
 						else
 							state <= send_result;
 						end if;
@@ -469,7 +513,6 @@ architecture logic of newton_raphson is
 					
 				when send_result =>
 					leds	 		<= "1000000010";
-					send_cycle_count <= send_cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
 					u_valid_in 	<= '0';
 					if(u_data_in_ready = '0' and u_data_in_ready_prev = '1') then
@@ -478,7 +521,7 @@ architecture logic of newton_raphson is
 					
 					if(cnt < 4) then
 						u_valid_in 	<= '1';
-						u_data_in 	<= calculator_result((31 - (3-cnt)*8) downto (24 - (3-cnt)*8));
+						u_data_in 	<= newton_raphson_result((31 - (3-cnt)*8) downto (24 - (3-cnt)*8));
 					elsif(cnt < 8) then
 						u_valid_in 	<= '1';
 						u_data_in 	<= cycle_count((31 - (7-cnt)*8) downto (24 - (7-cnt)*8));
@@ -487,13 +530,7 @@ architecture logic of newton_raphson is
 						u_data_in 	<= iteration_count((31 - (11-cnt)*8) downto (24 - (11-cnt)*8));
 					elsif(cnt < 16) then
 						u_valid_in 	<= '1';
-						u_data_in 	<= receive_cycle_count((31 - (15-cnt)*8) downto (24 - (15-cnt)*8));
-					elsif(cnt < 20) then
-						u_valid_in 	<= '1';
-						u_data_in 	<= send_cycle_count((31 - (19-cnt)*8) downto (24 - (19-cnt)*8));
-					elsif(cnt < 24) then
-						u_valid_in 	<= '1';
-						u_data_in 	<= total_cycle_count((31 - (23-cnt)*8) downto (24 - (23-cnt)*8));
+						u_data_in 	<= total_cycle_count((31 - (15-cnt)*8) downto (24 - (15-cnt)*8));
 					else
 						cnt 			<= 0;
 						start_opr 	<= '0';
@@ -512,7 +549,6 @@ architecture logic of newton_raphson is
 					count							<= 0;
 					cycle_count					<= (others => '0');
 					total_cycle_count			<= (others => '0');
-					state 						<= get_min_degree;
 					degree_min					<= 0;	
 					degree_max					<= 0;	
 					degree						<= 0;	
@@ -552,8 +588,6 @@ architecture logic of newton_raphson is
 					float_in(30)  				<= (others => '0');
 					float_in(31)  				<= (others => '0');
 					iteration_count			<= (others => '0');
-					receive_cycle_count		<= (others => '0');
-					send_cycle_count			<= (others => '0');
 					error_const_value			<= (others => '0');
 					-- End of Program 		
 			

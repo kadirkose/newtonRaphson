@@ -14,7 +14,7 @@ architecture logic of ip_core_operation_wait is
 
 signal cnt					: integer range 0 to 60:= 0;
 
-type machine is(idle, add_wait, mult_wait, pow_wait, div_wait, comp_wait);
+type machine is(idle, add_wait, mult_wait, div_wait, comp_wait);
 signal state: machine:= idle;
 
 begin
@@ -34,22 +34,20 @@ begin
 					cnt 				<= 0;
 					if(ip_op_wait = "000") then				-- no wait operation
 						state <= idle;
-					elsif(ip_op_wait = "001") then			-- add/subt operations max 2 cycle
+					elsif(ip_op_wait = "001") then			-- add/subt operations 8 cycle
 						state <= add_wait;
-					elsif(ip_op_wait = "010") then			-- multiply operation 3 cycle
+					elsif(ip_op_wait = "010") then			-- multiply operation 4 cycle
 						state <= mult_wait;
-					elsif(ip_op_wait = "011") then			-- power operation 26 cycle
-						state <= pow_wait;
-					elsif(ip_op_wait = "100") then			-- division operation 10 cycle
+					elsif(ip_op_wait = "100") then			-- division operation 16 cycle
 						state <= div_wait;
-					elsif(ip_op_wait = "101") then			-- compare operation 10 cycle
+					elsif(ip_op_wait = "101") then			-- compare operation 2 cycle
 						state <= comp_wait;
 					end if;
 					
 					
 				when add_wait =>
 					cnt <= cnt + 1;
-					if(cnt = 10) then
+					if(cnt = 9) then
 						ip_op_wait_ok 	<= '1';
 						cnt 				<= 0;
 						state 			<= idle;
@@ -58,25 +56,15 @@ begin
 					
 				when mult_wait =>
 					cnt <= cnt + 1;
-					if(cnt = 6) then
+					if(cnt = 5) then
 						ip_op_wait_ok 	<= '1';
 						cnt 				<= 0;
 						state 			<= idle;
 					end if;	
 					
-					
-				when pow_wait =>
-					cnt <= cnt + 1;
-					if(cnt = 50) then
-						ip_op_wait_ok 	<= '1';
-						cnt 				<= 0;
-						state 			<= idle;
-					end if;		
-					
-					
 				when div_wait =>
 					cnt <= cnt + 1;
-					if(cnt = 18) then
+					if(cnt = 17) then
 						ip_op_wait_ok 	<= '1';
 						cnt 				<= 0;
 						state 			<= idle;
@@ -84,12 +72,11 @@ begin
 					
 				when comp_wait =>
 					cnt <= cnt + 1;
-					if(cnt = 4) then
+					if(cnt = 3) then
 						ip_op_wait_ok 	<= '1';
 						cnt 				<= 0;
 						state 			<= idle;
 					end if;	
-
 					
 				when others =>
 					state <= idle;
