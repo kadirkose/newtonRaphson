@@ -113,7 +113,6 @@ set_global_assignment -name VHDL_FILE uart_debouncer.vhd
 set_global_assignment -name VHDL_FILE uart_clk_div.vhd
 set_global_assignment -name VHDL_FILE uart.vhd
 set_global_assignment -name VHDL_FILE newton_raphson.vhd
-set_global_assignment -name VHDL_FILE ip_core_operation_wait.vhd
 set_global_assignment -name VHDL_FILE calculator_rtl.vhd
 set_global_assignment -name QIP_FILE fp_substractor.qip
 set_global_assignment -name SIP_FILE fp_substractor.sip

@@ -16,7 +16,7 @@
 -- ---------------------------------------------------------------------------
 
 -- VHDL created from fp_comparator_0002
--- VHDL created on Wed Feb  2 16:32:09 2022
+-- VHDL created on Sun Mar  6 20:43:12 2022
 
 
 library IEEE;

@@ -231,10 +231,22 @@ int computeDerivative()
 		derSubsResult = 0;
 		for(degreeCount= 0; degreeCount < (degree_max-degree_min+1); degreeCount++)
 		{
+			if((fPointTemp.f == 0) && (degree_min != 0))
+			{
+				printf("Process is stopped because variable is zero. x/0 is nan");
+				goto exit;
+			}
+
 			subsResult+= (fPoint[degreeCount].f) * (pow(fPointTemp.f, (degreeCount+degree_min)));
-			derSubsResult+= (fPoint[degreeCount].f * (degreeCount+degree_min)) * (pow(fPointTemp.f, (degreeCount+degree_min-1)));
+			if(degreeCount+degree_min == 0)
+				derSubsResult+= 0;
+			else
+				derSubsResult+= (fPoint[degreeCount].f * (degreeCount+degree_min)) * (pow(fPointTemp.f, (degreeCount+degree_min-1)));
 		}
 		printf("%d. iteration\n",iter_count+1);
+		if(subsResult == 0 || derSubsResult == 0)
+			goto exit;
+
 		err = subsResult / derSubsResult;
 		printf("subs: %.040f  derivative subs: %.040f  error: %.040f\n", subsResult, derSubsResult, err);
 		fPointTemp.f = fPointTemp.f - err;
@@ -243,6 +255,7 @@ int computeDerivative()
 			break;
 		iter_count += 1;
 	}
+exit:
 	printf("\nResult in float :                                             %.040f\n", fPointTemp.f);
 	printf("Result in IEEE-754 representation float :                     %d", fPointTemp.raw.sign);
 	printBinary(fPointTemp.raw.exponent, 8);

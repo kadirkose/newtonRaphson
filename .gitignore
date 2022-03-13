@@ -28,3 +28,5 @@ db/.cmp.kpt
 db/
 
 float
+
+greybox_tmp/

@@ -1,6 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;	
+use ieee.std_logic_unsigned.all;	
 
 entity calculator_rtl is
 	port(
@@ -183,12 +184,12 @@ architecture logic of calculator_rtl is
 	
 	signal der_subs_result			: std_logic_vector(31 downto 0):= (others => '0');
 	signal subs_result				: std_logic_vector(31 downto 0):= (others => '0');
-	
-	signal ip_wait_reset				: std_logic;
-	signal ip_op_wait_ok				: std_logic;
-	signal ip_op_wait					: std_logic_vector(2 downto 0):= "000";
 	signal variable_value_int		: std_logic_vector(31 downto 0):= (others => '0');
 	signal cnt							: integer range 0 to 100:= 0;
+	
+	constant ADDER_DELAY 		: integer := 7;
+	constant MUlTIPLIER_DELAY  : integer := 3;
+	constant DIVIDER_DELAY 		: integer := 15;
 
 	type state_machine is(
 		idle,
@@ -230,15 +231,7 @@ architecture logic of calculator_rtl is
 	);
 	signal state: state_machine := idle;
 	
-	begin
-	
-	ip_core_wait_block: ip_core_operation_wait
-	port map(
-		clk				=> clk,
-		ip_wait_reset	=> ip_wait_reset,
-		ip_op_wait_ok	=> ip_op_wait_ok,
-		ip_op_wait		=> ip_op_wait
-	);		
+	begin		
 	
 	float_substractor_block: fp_substractor
 	port map(
@@ -972,7 +965,6 @@ architecture logic of calculator_rtl is
 	process(clk, reset)
 	begin
 		if(reset = '0') then
-			--ledg <= "00000000";
 			float_add_in1(0)  		<= (others => '0');
 			float_add_in1(1)  		<= (others => '0');
 			float_add_in1(2)  		<= (others => '0');
@@ -1199,25 +1191,20 @@ architecture logic of calculator_rtl is
 			variable_inverse_power_array(29) <= (others => '0');
 			variable_inverse_power_array(30) <= (others => '0');
 			variable_inverse_power_array(31) <= (others => '0');
-			complete_op_flag		 	<= '0';
-			ip_wait_reset				<= '0';
-			ip_op_wait					<= "000";
-			variable_value_int		<= (others => '0');
-			op_result					<= (others => '0');
-			der_subs_result			<= (others => '0');
-			subs_result					<= (others => '0');
-			cnt 							<= 0;
-			state							<= idle;
+			complete_op_flag		 				<= '0';
+			variable_value_int					<= (others => '0');
+			op_result								<= (others => '0');
+			der_subs_result						<= (others => '0');
+			subs_result								<= (others => '0');
+			cnt 										<= 0;
+			state										<= idle;
 		elsif(rising_edge(clk)) then
 			
 			case state is
 				
-				when idle => 
+				when idle =>
 					if(start_op = '1') then
-						variable_value_int			<= variable_value;
-						ip_wait_reset					<= '0';
-						ip_op_wait						<= "000";
-						--ledg <= "00000001";
+						variable_value_int	<= variable_value;
 						float_in(0) 	<= float_in0;
 						float_in(1) 	<= float_in1;
 						float_in(2) 	<= float_in2; 
@@ -1251,11 +1238,11 @@ architecture logic of calculator_rtl is
 						float_in(30) 	<= float_in30;
 						float_in(31) 	<= float_in31;
 						state 			<= initialize_derivative;
-						complete_op_flag <= '0';
+						complete_op_flag		 				<= '0';
 					end if;
 					
 				when initialize_derivative=>
-					--ledg(1) <= '1';
+					cnt <= 0;
 					float_mult_in1(0)  <= fp_const(31 - degree_min + 0);
 					float_mult_in2(0)  <= float_in(0);						
 					float_mult_in1(1)  <= fp_const(31 - degree_min + 1);
@@ -1320,17 +1307,13 @@ architecture logic of calculator_rtl is
 					float_mult_in2(30) <= float_in(30);
 					float_mult_in1(31) <= fp_const(31 - degree_min + 31);
 					float_mult_in2(31) <= float_in(31);				
-					
 					variable_power_array(0)	<= "00111111100000000000000000000000"; -- float '1'
 					variable_power_array(1) <= variable_value_int(31 downto 0); 
-					ip_op_wait				<= "010";										-- çarpma bekleme kodu
-					ip_wait_reset			<= '1';
-					state 				<= wait_mult_op;
+					state <= wait_mult_op;
 					
 				when wait_mult_op =>
-					if(ip_op_wait_ok= '1') then
-						ip_op_wait			<= "000";
-						ip_wait_reset		<= '0';
+					if(cnt = MULTIPLIER_DELAY) then
+						cnt <= 0;
 						mult_degree_coef(0) 	<= float_mult_out(0);
 						mult_degree_coef(1) 	<= float_mult_out(1);
 						mult_degree_coef(2) 	<= float_mult_out(2);
@@ -1364,42 +1347,45 @@ architecture logic of calculator_rtl is
 						mult_degree_coef(30) <= float_mult_out(30);
 						mult_degree_coef(31) <= float_mult_out(31);
 						state 				<= mult1_op;
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 				when mult1_op =>
+					cnt <= 0;
 					float_mult_in1(0) <= variable_value_int(31 downto 0);
 					float_mult_in2(0) <= variable_value_int(31 downto 0);
-					ip_op_wait			<= "010";										-- çarpma bekleme kodu
-					ip_wait_reset		<= '1';
 					state 				<= wait_mult1_op;
 					
 				when wait_mult1_op =>
-					if(ip_op_wait_ok= '1') then
-						ip_op_wait			<= "000";
-						ip_wait_reset		<= '0';
+					if(cnt = MULTIPLIER_DELAY) then
+						cnt <= 0;
 						state 				<= mult2_op;
 						variable_power_array(2)	<= float_mult_out(0);
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 				when mult2_op =>
+					cnt <= 0;
 					float_mult_in1(0) 	<= variable_power_array(1);
 					float_mult_in2(0) 	<= variable_power_array(2);
 					float_mult_in1(1) 	<= variable_power_array(2);
 					float_mult_in2(1) 	<= variable_power_array(2);
-					ip_op_wait				<= "010";										-- çarpma bekleme kodu
-					ip_wait_reset			<= '1';
 					state 					<= wait_mult2_op;
 					
 				when wait_mult2_op =>
-					if(ip_op_wait_ok= '1') then
-						ip_op_wait			<= "000";
-						ip_wait_reset		<= '0';
+					if(cnt = MULTIPLIER_DELAY) then
+						cnt <= 0;
 						variable_power_array(3)	<= float_mult_out(0);
 						variable_power_array(4)	<= float_mult_out(1);
 						state <= mult3_op;
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 				when mult3_op =>
+					cnt <= 0;
 					float_mult_in1(0) 	<= variable_power_array(2);
 					float_mult_in2(0) 	<= variable_power_array(3);
 					float_mult_in1(1) 	<= variable_power_array(3);
@@ -1408,22 +1394,22 @@ architecture logic of calculator_rtl is
 					float_mult_in2(2) 	<= variable_power_array(4);
 					float_mult_in1(3) 	<= variable_power_array(4);
 					float_mult_in2(3) 	<= variable_power_array(4);
-					ip_op_wait				<= "010";										-- çarpma bekleme kodu
-					ip_wait_reset			<= '1';
 					state 					<= wait_mult3_op;
 					
 				when wait_mult3_op =>
-					if(ip_op_wait_ok= '1') then
-						ip_op_wait			<= "000";
-						ip_wait_reset		<= '0';
+					if(cnt = MULTIPLIER_DELAY) then
+						cnt <= 0;
 						variable_power_array(5)	<= float_mult_out(0);
 						variable_power_array(6)	<= float_mult_out(1);
 						variable_power_array(7)	<= float_mult_out(2);
 						variable_power_array(8)	<= float_mult_out(3);
 						state <= mult4_op;
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 				when mult4_op =>
+					cnt <= 0;
 					float_mult_in1(0) 		<= variable_power_array(4);
 					float_mult_in2(0) 		<= variable_power_array(5);
 					float_mult_in1(1) 		<= variable_power_array(5);
@@ -1440,15 +1426,11 @@ architecture logic of calculator_rtl is
 					float_mult_in2(6) 		<= variable_power_array(8);
 					float_mult_in1(7) 		<= variable_power_array(8);
 					float_mult_in2(7) 		<= variable_power_array(8);
-					
-					ip_op_wait				<= "010";										-- çarpma bekleme kodu
-					ip_wait_reset			<= '1';
 					state 					<= wait_mult4_op;
 					
 				when wait_mult4_op =>
-					if(ip_op_wait_ok= '1') then
-						ip_op_wait			<= "000";
-						ip_wait_reset		<= '0';
+					if(cnt = MULTIPLIER_DELAY) then
+						cnt <= 0;
 						variable_power_array(9)					   <= float_mult_out(0);
 						variable_power_array(10)					<= float_mult_out(1);
 						variable_power_array(11)					<= float_mult_out(2);
@@ -1458,9 +1440,12 @@ architecture logic of calculator_rtl is
 						variable_power_array(15)					<= float_mult_out(6);
 						variable_power_array(16)					<= float_mult_out(7);
 						state <= mult5_op;
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 				when mult5_op =>
+					cnt <= 0;
 					float_mult_in1(0) 		<= variable_power_array(8);
 					float_mult_in2(0) 		<= variable_power_array(9);
 					float_mult_in1(1) 		<= variable_power_array(9);
@@ -1491,15 +1476,11 @@ architecture logic of calculator_rtl is
 					float_mult_in2(13) 		<= variable_power_array(15);
 					float_mult_in1(14) 		<= variable_power_array(15);
 					float_mult_in2(14) 		<= variable_power_array(16);
-					
-					ip_op_wait				<= "010";										-- çarpma bekleme kodu
-					ip_wait_reset			<= '1';
 					state 					<= wait_mult5_op;
 					
 				when wait_mult5_op =>
-					if(ip_op_wait_ok= '1') then
-						ip_op_wait			<= "000";
-						ip_wait_reset		<= '0';
+					if(cnt = MULTIPLIER_DELAY) then
+						cnt <= 0;
 						variable_power_array(17)					<= float_mult_out(0);
 						variable_power_array(18)					<= float_mult_out(1);
 						variable_power_array(19)					<= float_mult_out(2);
@@ -1517,14 +1498,15 @@ architecture logic of calculator_rtl is
 						variable_power_array(31)					<= float_mult_out(14);
 						if(degree_min = 0) then
 							state 	<= derivative_multiply;
-							cnt <= 0;
 						else
 							state 	<= calculate_negative_power;
 						end if;
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 				when calculate_negative_power =>
-					--ledg(2) <= '1';
+					cnt <= 0;
 					float_div_in1(0) <= "00111111100000000000000000000000"; -- float '1'
 					float_div_in2(0) <= variable_power_array(1);
 					float_div_in1(1) <= "00111111100000000000000000000000"; -- float '1'
@@ -1557,39 +1539,39 @@ architecture logic of calculator_rtl is
 					float_div_in2(14) <= variable_power_array(15);
 					float_div_in1(15) <= "00111111100000000000000000000000"; -- float '1'
 					float_div_in2(15) <= variable_power_array(16);
-					ip_op_wait		<= "100";												-- bölme bekleme kodu
-					ip_wait_reset	<= '1';
 					state <= wait_negative_power;
 					
 				when wait_negative_power =>
-					if(ip_op_wait_ok= '1') then
-							ip_op_wait		<= "000";
-							ip_wait_reset	<= '0';
-							if(degree_min < 17) then
-								state 			<= derivative_multiply;
-							else
-								state 			<= cont_calculate_negative_power;
-							end if;
-							variable_inverse_power_array(0) <= (others => '0');
-							variable_inverse_power_array(1) <= float_div_out(0);
-							variable_inverse_power_array(2) <= float_div_out(1);
-							variable_inverse_power_array(3) <= float_div_out(2);
-							variable_inverse_power_array(4) <= float_div_out(3);
-							variable_inverse_power_array(5) <= float_div_out(4);
-							variable_inverse_power_array(6) <= float_div_out(5);
-							variable_inverse_power_array(7) <= float_div_out(6);
-							variable_inverse_power_array(8) <= float_div_out(7);
-							variable_inverse_power_array(9) <= float_div_out(8);
-							variable_inverse_power_array(10) <= float_div_out(9);
-							variable_inverse_power_array(11) <= float_div_out(10);
-							variable_inverse_power_array(12) <= float_div_out(11);
-							variable_inverse_power_array(13) <= float_div_out(12);
-							variable_inverse_power_array(14) <= float_div_out(13);
-							variable_inverse_power_array(15) <= float_div_out(14);
-							variable_inverse_power_array(16) <= float_div_out(15);
+					if(cnt = DIVIDER_DELAY) then
+						cnt <= 0;
+						if(degree_min < 17) then
+							state 			<= derivative_multiply;
+						else
+							state 			<= cont_calculate_negative_power;
+						end if;
+						variable_inverse_power_array(0) <= (others => '0');
+						variable_inverse_power_array(1) <= float_div_out(0);
+						variable_inverse_power_array(2) <= float_div_out(1);
+						variable_inverse_power_array(3) <= float_div_out(2);
+						variable_inverse_power_array(4) <= float_div_out(3);
+						variable_inverse_power_array(5) <= float_div_out(4);
+						variable_inverse_power_array(6) <= float_div_out(5);
+						variable_inverse_power_array(7) <= float_div_out(6);
+						variable_inverse_power_array(8) <= float_div_out(7);
+						variable_inverse_power_array(9) <= float_div_out(8);
+						variable_inverse_power_array(10) <= float_div_out(9);
+						variable_inverse_power_array(11) <= float_div_out(10);
+						variable_inverse_power_array(12) <= float_div_out(11);
+						variable_inverse_power_array(13) <= float_div_out(12);
+						variable_inverse_power_array(14) <= float_div_out(13);
+						variable_inverse_power_array(15) <= float_div_out(14);
+						variable_inverse_power_array(16) <= float_div_out(15);
+					else
+						cnt <= cnt + 1;
 					end if;
 				
 				when cont_calculate_negative_power => 
+					cnt <= 0;
 					float_div_in1(0) <= "00111111100000000000000000000000"; -- float '1'
 					float_div_in2(0) <= variable_power_array(17);
 					float_div_in1(1) <= "00111111100000000000000000000000"; -- float '1'
@@ -1620,37 +1602,34 @@ architecture logic of calculator_rtl is
 					float_div_in2(13) <= variable_power_array(30);
 					float_div_in1(14) <= "00111111100000000000000000000000"; -- float '1'
 					float_div_in2(14) <= variable_power_array(31);
-					ip_op_wait		<= "100";												-- bölme bekleme kodu
-					ip_wait_reset	<= '1';
 					state <= wait_cont_negative_power;
 					
 				when wait_cont_negative_power =>
-					if(ip_op_wait_ok= '1') then
-							ip_op_wait		<= "000";
-							ip_wait_reset	<= '0';
-							state 			<= derivative_multiply;
-							variable_inverse_power_array(17) <= float_div_out(0);
-							variable_inverse_power_array(18) <= float_div_out(1);
-							variable_inverse_power_array(19) <= float_div_out(2);
-							variable_inverse_power_array(20) <= float_div_out(3);
-							variable_inverse_power_array(21) <= float_div_out(4);
-							variable_inverse_power_array(22) <= float_div_out(5);
-							variable_inverse_power_array(23) <= float_div_out(6);
-							variable_inverse_power_array(24) <= float_div_out(7);
-							variable_inverse_power_array(25) <= float_div_out(8);
-							variable_inverse_power_array(26) <= float_div_out(9);
-							variable_inverse_power_array(27) <= float_div_out(10);
-							variable_inverse_power_array(28) <= float_div_out(11);
-							variable_inverse_power_array(29) <= float_div_out(12);
-							variable_inverse_power_array(30) <= float_div_out(13);
-							variable_inverse_power_array(31) <= float_div_out(14);
-							cnt <= 0;
+					if(cnt = DIVIDER_DELAY) then
+						cnt <= 0;
+						state 			<= derivative_multiply;
+						variable_inverse_power_array(17) <= float_div_out(0);
+						variable_inverse_power_array(18) <= float_div_out(1);
+						variable_inverse_power_array(19) <= float_div_out(2);
+						variable_inverse_power_array(20) <= float_div_out(3);
+						variable_inverse_power_array(21) <= float_div_out(4);
+						variable_inverse_power_array(22) <= float_div_out(5);
+						variable_inverse_power_array(23) <= float_div_out(6);
+						variable_inverse_power_array(24) <= float_div_out(7);
+						variable_inverse_power_array(25) <= float_div_out(8);
+						variable_inverse_power_array(26) <= float_div_out(9);
+						variable_inverse_power_array(27) <= float_div_out(10);
+						variable_inverse_power_array(28) <= float_div_out(11);
+						variable_inverse_power_array(29) <= float_div_out(12);
+						variable_inverse_power_array(30) <= float_div_out(13);
+						variable_inverse_power_array(31) <= float_div_out(14);
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 				when derivative_multiply =>
 					if(cnt > 31) then
-						ip_op_wait		<= "010";												-- wait multiply
-						ip_wait_reset	<= '1';
+						cnt <= 0;
 						state <= wait_derivative_multiply;
 					else
 						float_mult_in1(cnt) <= mult_degree_coef(cnt);
@@ -1661,57 +1640,53 @@ architecture logic of calculator_rtl is
 						else
 							float_mult_in2(cnt) <= variable_power_array(cnt - (degree_min + 1));
 						end if;
+						cnt <= cnt + 1;
 					end if;
-					cnt <= cnt + 1;
 					
 					
 				when wait_derivative_multiply =>
-					--ledg(2) <= '1';
-					if(ip_op_wait_ok= '1') then
-							ip_op_wait		<= "000";
-							ip_wait_reset	<= '0';
-							state 			<= substitution_multiply;
-							derivative_mult_result(0) 	 <= float_mult_out(0);
-							derivative_mult_result(1) 	 <= float_mult_out(1);
-							derivative_mult_result(2) 	 <= float_mult_out(2);
-							derivative_mult_result(3) 	 <= float_mult_out(3);
-							derivative_mult_result(4) 	 <= float_mult_out(4);
-							derivative_mult_result(5) 	 <= float_mult_out(5);
-							derivative_mult_result(6) 	 <= float_mult_out(6);
-							derivative_mult_result(7) 	 <= float_mult_out(7);
-							derivative_mult_result(8) 	 <= float_mult_out(8);
-							derivative_mult_result(9) 	 <= float_mult_out(9);
-							derivative_mult_result(10)  <= float_mult_out(10);
-							derivative_mult_result(11)  <= float_mult_out(11);
-							derivative_mult_result(12)  <= float_mult_out(12);
-							derivative_mult_result(13)  <= float_mult_out(13);
-							derivative_mult_result(14)  <= float_mult_out(14);
-							derivative_mult_result(15)  <= float_mult_out(15);
-							derivative_mult_result(16)  <= float_mult_out(16);
-							derivative_mult_result(17)  <= float_mult_out(17);
-							derivative_mult_result(18)  <= float_mult_out(18);
-							derivative_mult_result(19)  <= float_mult_out(19);
-							derivative_mult_result(20)  <= float_mult_out(20);
-							derivative_mult_result(21)  <= float_mult_out(21);
-							derivative_mult_result(22)  <= float_mult_out(22);
-							derivative_mult_result(23)  <= float_mult_out(23);
-							derivative_mult_result(24)  <= float_mult_out(24);
-							derivative_mult_result(25)  <= float_mult_out(25);
-							derivative_mult_result(26)  <= float_mult_out(26);
-							derivative_mult_result(27)  <= float_mult_out(27);
-							derivative_mult_result(28)  <= float_mult_out(28);
-							derivative_mult_result(29)  <= float_mult_out(29);
-							derivative_mult_result(30)  <= float_mult_out(30);
-							derivative_mult_result(31)  <= float_mult_out(31);
-							--ledg <= variable_power_array(1)(30 downto 23);
-							cnt <= 0;
+					if(cnt = MULTIPLIER_DELAY) then
+						cnt <= 0;
+						state 			<= substitution_multiply;
+						derivative_mult_result(0) 	 <= float_mult_out(0);
+						derivative_mult_result(1) 	 <= float_mult_out(1);
+						derivative_mult_result(2) 	 <= float_mult_out(2);
+						derivative_mult_result(3) 	 <= float_mult_out(3);
+						derivative_mult_result(4) 	 <= float_mult_out(4);
+						derivative_mult_result(5) 	 <= float_mult_out(5);
+						derivative_mult_result(6) 	 <= float_mult_out(6);
+						derivative_mult_result(7) 	 <= float_mult_out(7);
+						derivative_mult_result(8) 	 <= float_mult_out(8);
+						derivative_mult_result(9) 	 <= float_mult_out(9);
+						derivative_mult_result(10)  <= float_mult_out(10);
+						derivative_mult_result(11)  <= float_mult_out(11);
+						derivative_mult_result(12)  <= float_mult_out(12);
+						derivative_mult_result(13)  <= float_mult_out(13);
+						derivative_mult_result(14)  <= float_mult_out(14);
+						derivative_mult_result(15)  <= float_mult_out(15);
+						derivative_mult_result(16)  <= float_mult_out(16);
+						derivative_mult_result(17)  <= float_mult_out(17);
+						derivative_mult_result(18)  <= float_mult_out(18);
+						derivative_mult_result(19)  <= float_mult_out(19);
+						derivative_mult_result(20)  <= float_mult_out(20);
+						derivative_mult_result(21)  <= float_mult_out(21);
+						derivative_mult_result(22)  <= float_mult_out(22);
+						derivative_mult_result(23)  <= float_mult_out(23);
+						derivative_mult_result(24)  <= float_mult_out(24);
+						derivative_mult_result(25)  <= float_mult_out(25);
+						derivative_mult_result(26)  <= float_mult_out(26);
+						derivative_mult_result(27)  <= float_mult_out(27);
+						derivative_mult_result(28)  <= float_mult_out(28);
+						derivative_mult_result(29)  <= float_mult_out(29);
+						derivative_mult_result(30)  <= float_mult_out(30);
+						derivative_mult_result(31)  <= float_mult_out(31);
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 				when substitution_multiply =>
-					--ledg(3) <= '1';
 					if(cnt > 31) then
-						ip_op_wait		<= "010";												-- wait multiply
-						ip_wait_reset	<= '1';
+						cnt <= 0;
 						state <= wait_substitution_multiply;
 					else
 						float_mult_in1(cnt) <= float_in(cnt);
@@ -1722,18 +1697,20 @@ architecture logic of calculator_rtl is
 						else
 							float_mult_in2(cnt) <= variable_power_array(cnt - degree_min);
 						end if;
+						cnt <= cnt + 1;
 					end if;
-					cnt <= cnt + 1;
+					
 					
 				when wait_substitution_multiply =>
-					if(ip_op_wait_ok= '1') then
-							ip_op_wait		<= "000";
-							ip_wait_reset	<= '0';
-							state 			<= initialize_subs_add1;
+					if(cnt = MULTIPLIER_DELAY) then
+						cnt <= 0;
+						state 			<= initialize_subs_add1;
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 				when initialize_subs_add1 =>
-					--ledg(4) <= '0';
+					cnt <= 0;
 					float_add_in1(0)	<= derivative_mult_result(0);
 					float_add_in2(0)	<= derivative_mult_result(1);
 					float_add_in1(1)	<= derivative_mult_result(2);
@@ -1798,19 +1775,18 @@ architecture logic of calculator_rtl is
 					float_add_in2(30)	<= float_mult_out(29);
 					float_add_in1(31)	<= float_mult_out(30);
 					float_add_in2(31)	<= float_mult_out(31);
-					ip_op_wait			<= "001";												-- toplama bekleme kodu
-					ip_wait_reset		<= '1';
 					state <= wait_subs_add1;
-					--ledg <= float_mult_out(0)(30 downto 23);
 				
 				when wait_subs_add1 =>
-					if(ip_op_wait_ok= '1') then
-						state 			<= initialize_subs_add2;
-						ip_op_wait		<= "000";
-						ip_wait_reset	<= '0';
+					if(cnt = ADDER_DELAY) then
+						cnt <= 0;
+						state <= initialize_subs_add2;
+					else
+						cnt <= cnt + 1;
 					end if;
 				
 				when initialize_subs_add2 =>
+					cnt <= 0;
 					float_add_in1(0)	<= float_add_out(0);
 					float_add_in2(0)	<= float_add_out(1);
 					float_add_in1(1)	<= float_add_out(2);
@@ -1843,18 +1819,18 @@ architecture logic of calculator_rtl is
 					float_add_in2(14)	<= float_add_out(29);
 					float_add_in1(15)	<= float_add_out(30);
 					float_add_in2(15)	<= float_add_out(31);
-					ip_op_wait			<= "001";
-					ip_wait_reset		<= '1';
 					state <= wait_subs_add2;
 				
 				when wait_subs_add2 =>
-					if(ip_op_wait_ok= '1') then
-						state 			<= initialize_subs_add3;
-						ip_op_wait		<= "000";
-						ip_wait_reset	<= '0';
+					if(cnt = ADDER_DELAY) then
+						cnt <= 0;
+						state <= initialize_subs_add3;
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 				when initialize_subs_add3 =>
+					cnt <= 0;
 					float_add_in1(0)	<= float_add_out(0);
 					float_add_in2(0)	<= float_add_out(1);
 					float_add_in1(1)	<= float_add_out(2);
@@ -1871,20 +1847,20 @@ architecture logic of calculator_rtl is
 					float_add_in2(6)	<= float_add_out(13);
 					float_add_in1(7)	<= float_add_out(14);
 					float_add_in2(7)	<= float_add_out(15);
-					ip_op_wait			<= "001";
-					ip_wait_reset		<= '1';
 					state <= wait_subs_add3;
 					
 				
 				when wait_subs_add3 =>
-					if(ip_op_wait_ok= '1') then
-						state 			<= initialize_subs_add4;
-						ip_op_wait		<= "000";
-						ip_wait_reset	<= '0';
+					if(cnt = ADDER_DELAY) then
+						cnt <= 0;
+						state <= initialize_subs_add4;
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 					
 				when initialize_subs_add4 =>
+					cnt <= 0;
 					float_add_in1(0)	<= float_add_out(0);
 					float_add_in2(0)	<= float_add_out(1);
 					float_add_in1(1)	<= float_add_out(2);
@@ -1893,76 +1869,78 @@ architecture logic of calculator_rtl is
 					float_add_in2(2)	<= float_add_out(5);
 					float_add_in1(3)	<= float_add_out(6);
 					float_add_in2(3)	<= float_add_out(7);
-					ip_op_wait			<= "001";
-					ip_wait_reset		<= '1';
 					state <= wait_subs_add4;
-					
+		
 				
-				when wait_subs_add4=>
-					if(ip_op_wait_ok= '1') then
+				when wait_subs_add4 =>
+					if(cnt = ADDER_DELAY) then
+						cnt <= 0;
 						state 			<= initialize_subs_add5;
-						ip_op_wait		<= "000";
-						ip_wait_reset	<= '0';
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 					
 				when initialize_subs_add5 =>
-					--ledg(2) <= '0';
+					cnt <= 0;
 					float_add_in1(0)	<= float_add_out(0);
 					float_add_in2(0)	<= float_add_out(1);	
 					float_add_in1(1)	<= float_add_out(2);
 					float_add_in2(1)	<= float_add_out(3);	
-					ip_op_wait			<= "001";
-					ip_wait_reset		<= '1';
 					state <= wait_addition_result;
 				
 				when wait_addition_result =>
-					if(ip_op_wait_ok= '1') then
-						ip_op_wait		<= "000";
-						ip_wait_reset	<= '0';
+					if(cnt = ADDER_DELAY) then
+						cnt <= 0;
 						der_subs_result <= float_add_out(0);
 						subs_result <= float_add_out(1);
 						state <= initialize_division;
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 				when initialize_division =>
-					--ledg(1) <= '0';
-					float_div_in1(0) 			<= subs_result;
-					float_div_in2(0) 			<= der_subs_result;
-					ip_op_wait				<= "100";
-					ip_wait_reset			<= '1';
-					state <= wait_division;
+					cnt <= 0;
+					if(der_subs_result = "00000000000000000000000000000000") then
+						state <= initialize_substractor;
+						error_value <= (others => '0');
+					elsif(subs_result = "00000000000000000000000000000000") then
+						state <= initialize_substractor;
+						error_value <= (others => '0');
+					else
+						float_div_in1(0) 			<= subs_result;
+						float_div_in2(0) 			<= der_subs_result;
+						state <= wait_division;
+					end if;
 					
 				when wait_division =>
-					if(ip_op_wait_ok= '1') then
-						ip_op_wait			<= "000";
-						ip_wait_reset		<= '0';
+					if(cnt = DIVIDER_DELAY) then
+						cnt <= 0;
 						state 				<= initialize_substractor;	
 						error_value 		<= float_div_out(0);
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 				when initialize_substractor =>
-					--ledg(6) <= '1';
-					float_substractor_in2 	<= float_div_out(0);
+					cnt <= 0;
+					float_substractor_in2 	<= error_value;
 					float_substractor_in1 	<= variable_value_int;
-					ip_op_wait					<= "001";
-					ip_wait_reset				<= '1';
 					state <= wait_substractor;
 				
 				when wait_substractor =>
-					if(ip_op_wait_ok= '1') then
-						state 			<= complete_op;
-						ip_op_wait		<= "000";
-						ip_wait_reset	<= '0';
+					if(cnt = ADDER_DELAY) then
+						cnt <= 0;
+						state <= complete_op;
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 				when complete_op =>
-					--ledg(7) <= '1';
 					complete_op_flag 	<= '1';
-					op_result 			<= float_substractor_out;
-					ledg <= float_substractor_out(30 downto 23);
+					op_result <= float_substractor_out;
 					state <= idle;
-					
+				
 			end case;
 		end if;
 	end process;

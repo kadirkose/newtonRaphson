@@ -106,15 +106,6 @@ architecture logic of newton_raphson is
 			areset 				: in std_logic
 		);
 	end component;
-	
-	component ip_core_operation_wait is
-		port(
-			clk					: in 	std_logic;
-			ip_wait_reset		: in 	std_logic;
-			ip_op_wait_ok		: out std_logic;
-			ip_op_wait			: in	std_logic_vector(2 downto 0):= "000"
-		);
-	end component;
 
 	signal cnt									: integer range 0 to 100:= 0;
 	signal count								: integer:= 0;
@@ -134,7 +125,6 @@ architecture logic of newton_raphson is
 	signal start_opr							: std_logic:= '0';
 	signal complete_calculator_flag		: std_logic:= '0';
 	signal calculator_result				: std_logic_vector(31 downto 0);
-	signal newton_raphson_result			: std_logic_vector(31 downto 0); 
 	
 	type float32 is array(31 downto 0) of std_logic_vector(31 downto 0);
 	signal float_in		: float32:= (others => "00000000000000000000000000000000");
@@ -147,11 +137,6 @@ architecture logic of newton_raphson is
 	signal float_comp_in2			: std_logic_vector(31 downto 0):= (others => '0');
 	signal interation_limit			: std_logic_vector(31 downto 0):= (others => '0');
 	
-	signal ip_wait_reset				: std_logic;
-	signal ip_op_wait_ok				: std_logic;
-	signal ip_op_wait					: std_logic_vector(2 downto 0):= "000";
-
-	
 	type machine is(
 		get_min_degree, 
 		get_max_degree,
@@ -162,7 +147,6 @@ architecture logic of newton_raphson is
 		get_coefficients, 
 		initialize_calculator,
 		complete_calculator, 
-		initialize_compare,
 		wait_compare,
 		complete_compare,
 		send_result,
@@ -253,14 +237,6 @@ architecture logic of newton_raphson is
 		q      => float_comp_out
 	);
 	
-	ip_core_wait_block: ip_core_operation_wait
-	port map(
-		clk				=> clk,
-		ip_wait_reset	=> ip_wait_reset,
-		ip_op_wait_ok	=> ip_op_wait_ok,
-		ip_op_wait		=> ip_op_wait
-	);		
-	
 	process(clk, reset)
 	begin
 		if(reset = '0') then
@@ -318,7 +294,6 @@ architecture logic of newton_raphson is
 			case state is
 			
 				when idle =>
-					leds	 		<= "1111111111";
 					u_valid_in 					<= '0';
 					u_data_in 					<= "01010010";														-- ASCII 'R'
 					cnt 							<= 0;
@@ -373,7 +348,6 @@ architecture logic of newton_raphson is
 					end if;
 			
 				when get_min_degree =>
-					leds	 		<= "0000000001";
 					total_cycle_count <= total_cycle_count + 1;
 					degree_min 	<= to_integer(unsigned(u_data_out));
 					if(to_integer(unsigned(u_data_out)) > 31) then
@@ -384,7 +358,6 @@ architecture logic of newton_raphson is
 					
 				when get_max_degree =>
 					total_cycle_count <= total_cycle_count + 1;
-					leds	 		<= "0000000010";
 					if(u_valid_out = '1') then																-- if data came from UART
 						degree_max 	<= to_integer(unsigned(u_data_out));
 						if(to_integer(unsigned(u_data_out)) > 31) then
@@ -396,7 +369,6 @@ architecture logic of newton_raphson is
 					
 				when degree_range_control =>
 					total_cycle_count <= total_cycle_count + 1;
-					leds	 		<= "0000000100";
 					if(degree_min + degree_max > 31) then												-- degree must be in range [-31,31] with maximum 32 coefficients
 						state 	<= idle;
 					else
@@ -407,7 +379,6 @@ architecture logic of newton_raphson is
 					
 				when get_var_val =>
 					total_cycle_count <= total_cycle_count + 1;
-					leds	 		<= "0000001000";
 					if(u_valid_out = '1') then																-- if data came from UART	
 						cnt 		<= (cnt + 1);
 						variable_value((31 - cnt*8) downto (24 - cnt*8)) <= u_data_out;
@@ -419,7 +390,6 @@ architecture logic of newton_raphson is
 					
 				when get_error_val =>
 					total_cycle_count <= total_cycle_count + 1;
-					leds	 		<= "0000010000";
 					if(u_valid_out = '1') then																-- if data came from UART	
 						cnt 		<= (cnt + 1);
 						error_const_value((31 - cnt*8) downto (24 - cnt*8)) <= u_data_out;
@@ -431,7 +401,6 @@ architecture logic of newton_raphson is
 					
 				when get_iteration_val =>
 					total_cycle_count <= total_cycle_count + 1;
-					leds	 		<= "0000100000";
 					if(u_valid_out = '1') then																-- if data came from UART	
 						cnt 		<= (cnt + 1);
 						interation_limit((31 - cnt*8) downto (24 - cnt*8)) <= u_data_out;
@@ -443,7 +412,6 @@ architecture logic of newton_raphson is
 					
 				when get_coefficients =>
 					total_cycle_count <= total_cycle_count + 1;
-					leds	 		<= "0001000000";
 					if(cnt = 4) then
 						count 		<= (count + 1);
 						cnt 			<= 0;
@@ -462,66 +430,55 @@ architecture logic of newton_raphson is
 					iteration_count <= iteration_count + 1;
 					cycle_count <= cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
-					leds	 		<= "0010000000";
 					start_opr 	<= '1';
 					state 		<= complete_calculator;
 					
 				when complete_calculator =>
-					leds	 				<= "0100000000";			
 					total_cycle_count <= total_cycle_count + 1;
 					cycle_count <= cycle_count + 1;
+					start_opr <= '0';
 					if(complete_calculator_flag = '1') then
-						state 		<= initialize_compare;
-						start_opr 	<= '0';
-						newton_raphson_result <= calculator_result;
+						cnt <= 0;
+						float_comp_in1(30 downto 0) <= error_value(30 downto 0);
+						float_comp_in2 <= error_const_value;
+						state <= wait_compare;
 					end if;
-					
-				when initialize_compare =>
-					float_comp_in1 		<= error_value;
-					float_comp_in2			<= error_const_value;
-					float_comp_in1(31)	<= '0';
-					cycle_count <= cycle_count + 1;
-					total_cycle_count <= total_cycle_count + 1;
-					leds	 				<= "0100000001";	
-					ip_op_wait				<= "101";											-- karşılaştırma bekleme kodu
-					ip_wait_reset			<= '1';
-					state <= wait_compare;
-
+	
 				when wait_compare =>
 					total_cycle_count <= total_cycle_count + 1;
 					cycle_count <= cycle_count + 1;
-					if(ip_op_wait_ok= '1') then
-						ip_op_wait			<= "000";
-						ip_wait_reset		<= '0';
-						state 				<= complete_compare;
+					if(cnt = 2) then
+						cnt <= 0;
+						state <= complete_compare;
+					else
+						cnt <= cnt + 1;
 					end if;
 					
 				when complete_compare =>
 					cycle_count <= cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
-					leds	 				<= "1000000001";	
-					if(iteration_count < (interation_limit + 1)) then
-						if(float_comp_out = "0" ) then
-							state <= initialize_calculator;
-							variable_value <= newton_raphson_result;
-						else
-							state <= send_result;
-						end if;
+					leds <= variable_value(30 downto 21);
+					if(iteration_count < (interation_limit + 1)) then 
+						if(float_comp_out = "0" ) then 
+							state <= initialize_calculator; 
+							variable_value <= calculator_result; 
+						else 
+							state <= send_result; 
+						end if; 
 					else
-						state <= send_result;
-					end if;
+						state <= send_result; 
+					end if; 
 					
 				when send_result =>
-					leds	 		<= "1000000010";
 					total_cycle_count <= total_cycle_count + 1;
 					u_valid_in 	<= '0';
 					if(u_data_in_ready = '0' and u_data_in_ready_prev = '1') then
 						cnt <= (cnt + 1);
 					end if;
-					
+		
 					if(cnt < 4) then
 						u_valid_in 	<= '1';
-						u_data_in 	<= newton_raphson_result((31 - (3-cnt)*8) downto (24 - (3-cnt)*8));
+						u_data_in 	<= calculator_result((31 - (3-cnt)*8) downto (24 - (3-cnt)*8));
 					elsif(cnt < 8) then
 						u_valid_in 	<= '1';
 						u_data_in 	<= cycle_count((31 - (7-cnt)*8) downto (24 - (7-cnt)*8));
@@ -538,7 +495,6 @@ architecture logic of newton_raphson is
 					end if;
 					
 				when power_off =>
-					leds	 		<= "1000000100";
 					state <= reset_all_variable;
 					
 				when reset_all_variable =>
@@ -553,7 +509,6 @@ architecture logic of newton_raphson is
 					degree_max					<= 0;	
 					degree						<= 0;	
 					start_opr					<= '0';			
-					leds 							<= "0000000000";
 					variable_value		  		<= (others => '0');
 					float_in(0)  				<= (others => '0');
 					float_in(1)  				<= (others => '0');
@@ -588,8 +543,7 @@ architecture logic of newton_raphson is
 					float_in(30)  				<= (others => '0');
 					float_in(31)  				<= (others => '0');
 					iteration_count			<= (others => '0');
-					error_const_value			<= (others => '0');
-					-- End of Program 		
+					error_const_value			<= (others => '0');	
 			
 				when others =>
 					state <= idle;
