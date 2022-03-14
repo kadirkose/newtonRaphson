@@ -33,41 +33,41 @@ architecture logic of newton_raphson is
 			degree							: in 	integer;
 			degree_min						: in 	integer;
 			variable_value					: in	std_logic_vector(31 downto 0):= (others => '0');
-			op_result						: out	std_logic_vector(31 downto 0):= (others => '0');
-			complete_op_flag				: out	std_logic:= '0';
-			error_value						: out std_logic_vector(31 downto 0):= (others => '0');
-			float_in0        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in1        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in2        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in3        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in4        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in5        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in6        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in7        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in8        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in9        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in10						: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in11       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in12       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in13       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in14       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in15       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in16       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in17       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in18       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in19       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in20       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in21       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in22       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in23       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in24       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in25       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in26       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in27       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in28       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in29       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in30       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-			float_in31       				: in 	std_logic_vector(31 downto 0):= (others => '0')
+			calculator_result						: out	std_logic_vector(31 downto 0):= (others => '0');
+			complete_op						: out	std_logic:= '0';
+			accuracy							: out std_logic_vector(31 downto 0):= (others => '0');
+			coefficient0        				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient1        				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient2        				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient3        				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient4        				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient5        				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient6        				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient7        				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient8        				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient9        				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient10						: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient11       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient12       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient13       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient14       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient15       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient16       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient17       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient18       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient19       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient20       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient21       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient22       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient23       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient24       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient25       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient26       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient27       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient28       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient29       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient30       				: in 	std_logic_vector(31 downto 0):= (others => '0');
+			coefficient31       				: in 	std_logic_vector(31 downto 0):= (others => '0')
 		);
 	end component;
 	
@@ -123,15 +123,15 @@ architecture logic of newton_raphson is
 	signal degree_min, degree_max, degree	: integer:= 0;
 	
 	signal start_opr							: std_logic:= '0';
-	signal complete_calculator_flag		: std_logic:= '0';
+	signal complete_op		: std_logic:= '0';
 	signal calculator_result				: std_logic_vector(31 downto 0);
 	
 	type float32 is array(31 downto 0) of std_logic_vector(31 downto 0);
-	signal float_in		: float32:= (others => "00000000000000000000000000000000");
+	signal coefficient		: float32:= (others => "00000000000000000000000000000000");
 	
 	signal float_comp_in1			: std_logic_vector(31 downto 0):= (others => '0');
-	signal error_value				: std_logic_vector(31 downto 0):= (others => '0');
-	signal float_comp_out			: std_logic_vector(0 downto 0) := (others => '0');
+	signal accuracy				: std_logic_vector(31 downto 0):= (others => '0');
+	signal comparator_result			: std_logic_vector(0 downto 0) := (others => '0');
 	signal iteration_count			: std_logic_vector(31 downto 0):= (others => '0');
 	signal error_const_value		: std_logic_vector(31 downto 0):= (others => '0');
 	signal float_comp_in2			: std_logic_vector(31 downto 0):= (others => '0');
@@ -160,48 +160,48 @@ architecture logic of newton_raphson is
 	
 	calculator_block: calculator_rtl
 	port map(
-	ledg => ledg,
+		ledg => ledg,
 		clk								=> clk,
 		reset								=> reset,
 		start_op							=> start_opr,
 		degree							=> degree,
 		degree_min						=> degree_min,
 		variable_value					=> variable_value,
-		op_result						=> calculator_result,
-		error_value						=> error_value,
-		complete_op_flag				=> complete_calculator_flag,
-		float_in0        				=> float_in(0),  
-		float_in1        				=> float_in(1),    
-		float_in2        				=> float_in(2),    
-		float_in3        				=> float_in(3),    
-		float_in4        				=> float_in(4),    
-		float_in5        				=> float_in(5),     
-		float_in6        				=> float_in(6),    
-		float_in7        				=> float_in(7),    
-		float_in8        				=> float_in(8),    
-		float_in9        				=> float_in(9),    
-		float_in10						=> float_in(10),	
-		float_in11       				=> float_in(11),   
-		float_in12       				=> float_in(12),   
-		float_in13       				=> float_in(13),   
-		float_in14       				=> float_in(14),   
-		float_in15       				=> float_in(15),   
-		float_in16       				=> float_in(16),   
-		float_in17       				=> float_in(17),   
-		float_in18       				=> float_in(18),   
-		float_in19       				=> float_in(19),   
-		float_in20       				=> float_in(20),   
-		float_in21       				=> float_in(21),   
-		float_in22       				=> float_in(22),   
-		float_in23       				=> float_in(23),   
-		float_in24       				=> float_in(24),   
-		float_in25       				=> float_in(25),   
-		float_in26       				=> float_in(26),   
-		float_in27       				=> float_in(27),   
-		float_in28       				=> float_in(28),   
-		float_in29       				=> float_in(29),   
-		float_in30       				=> float_in(30),   
-		float_in31       				=> float_in(31)
+		calculator_result						=> calculator_result,
+		accuracy						=> accuracy,
+		complete_op							=> complete_op,
+		coefficient0        				=> coefficient(0),  
+		coefficient1        				=> coefficient(1),    
+		coefficient2        				=> coefficient(2),    
+		coefficient3        				=> coefficient(3),    
+		coefficient4        				=> coefficient(4),    
+		coefficient5        				=> coefficient(5),     
+		coefficient6        				=> coefficient(6),    
+		coefficient7        				=> coefficient(7),    
+		coefficient8        				=> coefficient(8),    
+		coefficient9        				=> coefficient(9),    
+		coefficient10						=> coefficient(10),	
+		coefficient11       				=> coefficient(11),   
+		coefficient12       				=> coefficient(12),   
+		coefficient13       				=> coefficient(13),   
+		coefficient14       				=> coefficient(14),   
+		coefficient15       				=> coefficient(15),   
+		coefficient16       				=> coefficient(16),   
+		coefficient17       				=> coefficient(17),   
+		coefficient18       				=> coefficient(18),   
+		coefficient19       				=> coefficient(19),   
+		coefficient20       				=> coefficient(20),   
+		coefficient21       				=> coefficient(21),   
+		coefficient22       				=> coefficient(22),   
+		coefficient23       				=> coefficient(23),   
+		coefficient24       				=> coefficient(24),   
+		coefficient25       				=> coefficient(25),   
+		coefficient26       				=> coefficient(26),   
+		coefficient27       				=> coefficient(27),   
+		coefficient28       				=> coefficient(28),   
+		coefficient29       				=> coefficient(29),   
+		coefficient30       				=> coefficient(30),   
+		coefficient31       				=> coefficient(31)
 	);
 	
 	uart_block: uart
@@ -234,7 +234,7 @@ architecture logic of newton_raphson is
 		areset => not reset,
 		a      => float_comp_in1,
 		b      => float_comp_in2,
-		q      => float_comp_out
+		q      => comparator_result
 	);
 	
 	process(clk, reset)
@@ -253,38 +253,38 @@ architecture logic of newton_raphson is
 			start_opr					<= '0';			
 			leds 							<= "0000000000";
 			variable_value		  		<= (others => '0');
-			float_in(0)  				<= (others => '0');
-			float_in(1)  				<= (others => '0');
-			float_in(2)  				<= (others => '0');
-			float_in(3)  				<= (others => '0');
-			float_in(4)  				<= (others => '0');
-			float_in(5)  				<= (others => '0');
-			float_in(6) 				<= (others => '0');
-			float_in(7)  				<= (others => '0');
-			float_in(8)  				<= (others => '0');
-			float_in(9)  				<= (others => '0');
-			float_in(10)  				<= (others => '0');
-			float_in(11)				<= (others => '0');
-			float_in(12)  				<= (others => '0');
-			float_in(13)  				<= (others => '0');
-			float_in(14)  				<= (others => '0');
-			float_in(15)  				<= (others => '0');
-			float_in(16)  				<= (others => '0');
-			float_in(17)  				<= (others => '0');
-			float_in(18) 				<= (others => '0');
-			float_in(19)  				<= (others => '0');
-			float_in(20)  				<= (others => '0');
-			float_in(21)  				<= (others => '0');
-			float_in(22)  				<= (others => '0');
-			float_in(23)  				<= (others => '0');
-			float_in(24)  				<= (others => '0');
-			float_in(25)  				<= (others => '0');
-			float_in(26)  				<= (others => '0');
-			float_in(27)  				<= (others => '0');
-			float_in(28)  				<= (others => '0');
-			float_in(29)  				<= (others => '0');
-			float_in(30)  				<= (others => '0');
-			float_in(31)  				<= (others => '0');
+			coefficient(0)  				<= (others => '0');
+			coefficient(1)  				<= (others => '0');
+			coefficient(2)  				<= (others => '0');
+			coefficient(3)  				<= (others => '0');
+			coefficient(4)  				<= (others => '0');
+			coefficient(5)  				<= (others => '0');
+			coefficient(6) 				<= (others => '0');
+			coefficient(7)  				<= (others => '0');
+			coefficient(8)  				<= (others => '0');
+			coefficient(9)  				<= (others => '0');
+			coefficient(10)  				<= (others => '0');
+			coefficient(11)				<= (others => '0');
+			coefficient(12)  				<= (others => '0');
+			coefficient(13)  				<= (others => '0');
+			coefficient(14)  				<= (others => '0');
+			coefficient(15)  				<= (others => '0');
+			coefficient(16)  				<= (others => '0');
+			coefficient(17)  				<= (others => '0');
+			coefficient(18) 				<= (others => '0');
+			coefficient(19)  				<= (others => '0');
+			coefficient(20)  				<= (others => '0');
+			coefficient(21)  				<= (others => '0');
+			coefficient(22)  				<= (others => '0');
+			coefficient(23)  				<= (others => '0');
+			coefficient(24)  				<= (others => '0');
+			coefficient(25)  				<= (others => '0');
+			coefficient(26)  				<= (others => '0');
+			coefficient(27)  				<= (others => '0');
+			coefficient(28)  				<= (others => '0');
+			coefficient(29)  				<= (others => '0');
+			coefficient(30)  				<= (others => '0');
+			coefficient(31)  				<= (others => '0');
 			iteration_count			<= (others => '0');
 			error_const_value			<= (others => '0');
 			interation_limit			<= (others => '0');
@@ -306,38 +306,38 @@ architecture logic of newton_raphson is
 					degree						<= 0;	
 					start_opr					<= '0';			
 					variable_value		  		<= (others => '0');
-					float_in(0)  				<= (others => '0');
-					float_in(1)  				<= (others => '0');
-					float_in(2)  				<= (others => '0');
-					float_in(3)  				<= (others => '0');
-					float_in(4)  				<= (others => '0');
-					float_in(5)  				<= (others => '0');
-					float_in(6) 				<= (others => '0');
-					float_in(7)  				<= (others => '0');
-					float_in(8)  				<= (others => '0');
-					float_in(9)  				<= (others => '0');
-					float_in(10)  				<= (others => '0');
-					float_in(11)				<= (others => '0');
-					float_in(12)  				<= (others => '0');
-					float_in(13)  				<= (others => '0');
-					float_in(14)  				<= (others => '0');
-					float_in(15)  				<= (others => '0');
-					float_in(16)  				<= (others => '0');
-					float_in(17)  				<= (others => '0');
-					float_in(18) 				<= (others => '0');
-					float_in(19)  				<= (others => '0');
-					float_in(20)  				<= (others => '0');
-					float_in(21)  				<= (others => '0');
-					float_in(22)  				<= (others => '0');
-					float_in(23)  				<= (others => '0');
-					float_in(24)  				<= (others => '0');
-					float_in(25)  				<= (others => '0');
-					float_in(26)  				<= (others => '0');
-					float_in(27)  				<= (others => '0');
-					float_in(28)  				<= (others => '0');
-					float_in(29)  				<= (others => '0');
-					float_in(30)  				<= (others => '0');
-					float_in(31)  				<= (others => '0');
+					coefficient(0)  				<= (others => '0');
+					coefficient(1)  				<= (others => '0');
+					coefficient(2)  				<= (others => '0');
+					coefficient(3)  				<= (others => '0');
+					coefficient(4)  				<= (others => '0');
+					coefficient(5)  				<= (others => '0');
+					coefficient(6) 				<= (others => '0');
+					coefficient(7)  				<= (others => '0');
+					coefficient(8)  				<= (others => '0');
+					coefficient(9)  				<= (others => '0');
+					coefficient(10)  				<= (others => '0');
+					coefficient(11)				<= (others => '0');
+					coefficient(12)  				<= (others => '0');
+					coefficient(13)  				<= (others => '0');
+					coefficient(14)  				<= (others => '0');
+					coefficient(15)  				<= (others => '0');
+					coefficient(16)  				<= (others => '0');
+					coefficient(17)  				<= (others => '0');
+					coefficient(18) 				<= (others => '0');
+					coefficient(19)  				<= (others => '0');
+					coefficient(20)  				<= (others => '0');
+					coefficient(21)  				<= (others => '0');
+					coefficient(22)  				<= (others => '0');
+					coefficient(23)  				<= (others => '0');
+					coefficient(24)  				<= (others => '0');
+					coefficient(25)  				<= (others => '0');
+					coefficient(26)  				<= (others => '0');
+					coefficient(27)  				<= (others => '0');
+					coefficient(28)  				<= (others => '0');
+					coefficient(29)  				<= (others => '0');
+					coefficient(30)  				<= (others => '0');
+					coefficient(31)  				<= (others => '0');
 					iteration_count			<= (others => '0');
 					error_const_value			<= (others => '0');
 					interation_limit			<= (others => '0');
@@ -423,7 +423,7 @@ architecture logic of newton_raphson is
 					
 					if(u_valid_out = '1') then																-- if data came from UART	
 						cnt 			<= (cnt + 1);
-						float_in(count)((31 - cnt*8) downto (24 - cnt*8)) <= u_data_out;
+						coefficient(count)((31 - cnt*8) downto (24 - cnt*8)) <= u_data_out;
 					end if;
 					
 				when initialize_calculator =>
@@ -437,11 +437,12 @@ architecture logic of newton_raphson is
 					total_cycle_count <= total_cycle_count + 1;
 					cycle_count <= cycle_count + 1;
 					start_opr <= '0';
-					if(complete_calculator_flag = '1') then
+					if(complete_op = '1') then
 						cnt <= 0;
-						float_comp_in1(30 downto 0) <= error_value(30 downto 0);
+						float_comp_in1(30 downto 0) <= accuracy(30 downto 0);
 						float_comp_in2 <= error_const_value;
 						state <= wait_compare;
+						leds <= calculator_result(30 downto 21);
 					end if;
 	
 				when wait_compare =>
@@ -457,9 +458,8 @@ architecture logic of newton_raphson is
 				when complete_compare =>
 					cycle_count <= cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
-					leds <= variable_value(30 downto 21);
 					if(iteration_count < (interation_limit + 1)) then 
-						if(float_comp_out = "0" ) then 
+						if(comparator_result = "0" ) then 
 							state <= initialize_calculator; 
 							variable_value <= calculator_result; 
 						else 
@@ -510,38 +510,38 @@ architecture logic of newton_raphson is
 					degree						<= 0;	
 					start_opr					<= '0';			
 					variable_value		  		<= (others => '0');
-					float_in(0)  				<= (others => '0');
-					float_in(1)  				<= (others => '0');
-					float_in(2)  				<= (others => '0');
-					float_in(3)  				<= (others => '0');
-					float_in(4)  				<= (others => '0');
-					float_in(5)  				<= (others => '0');
-					float_in(6) 				<= (others => '0');
-					float_in(7)  				<= (others => '0');
-					float_in(8)  				<= (others => '0');
-					float_in(9)  				<= (others => '0');
-					float_in(10)  				<= (others => '0');
-					float_in(11)				<= (others => '0');
-					float_in(12)  				<= (others => '0');
-					float_in(13)  				<= (others => '0');
-					float_in(14)  				<= (others => '0');
-					float_in(15)  				<= (others => '0');
-					float_in(16)  				<= (others => '0');
-					float_in(17)  				<= (others => '0');
-					float_in(18) 				<= (others => '0');
-					float_in(19)  				<= (others => '0');
-					float_in(20)  				<= (others => '0');
-					float_in(21)  				<= (others => '0');
-					float_in(22)  				<= (others => '0');
-					float_in(23)  				<= (others => '0');
-					float_in(24)  				<= (others => '0');
-					float_in(25)  				<= (others => '0');
-					float_in(26)  				<= (others => '0');
-					float_in(27)  				<= (others => '0');
-					float_in(28)  				<= (others => '0');
-					float_in(29)  				<= (others => '0');
-					float_in(30)  				<= (others => '0');
-					float_in(31)  				<= (others => '0');
+					coefficient(0)  			<= (others => '0');
+					coefficient(1)  			<= (others => '0');
+					coefficient(2)  			<= (others => '0');
+					coefficient(3)  			<= (others => '0');
+					coefficient(4)  			<= (others => '0');
+					coefficient(5)  			<= (others => '0');
+					coefficient(6) 			<= (others => '0');
+					coefficient(7)  			<= (others => '0');
+					coefficient(8)  			<= (others => '0');
+					coefficient(9)  			<= (others => '0');
+					coefficient(10)  			<= (others => '0');
+					coefficient(11)			<= (others => '0');
+					coefficient(12)  			<= (others => '0');
+					coefficient(13)  			<= (others => '0');
+					coefficient(14)  			<= (others => '0');
+					coefficient(15)  			<= (others => '0');
+					coefficient(16)  			<= (others => '0');
+					coefficient(17)  			<= (others => '0');
+					coefficient(18) 			<= (others => '0');
+					coefficient(19)  			<= (others => '0');
+					coefficient(20)  			<= (others => '0');
+					coefficient(21)  			<= (others => '0');
+					coefficient(22)  			<= (others => '0');
+					coefficient(23)  			<= (others => '0');
+					coefficient(24)  			<= (others => '0');
+					coefficient(25)  			<= (others => '0');
+					coefficient(26)  			<= (others => '0');
+					coefficient(27)  			<= (others => '0');
+					coefficient(28)  			<= (others => '0');
+					coefficient(29)  			<= (others => '0');
+					coefficient(30)  			<= (others => '0');
+					coefficient(31)  			<= (others => '0');
 					iteration_count			<= (others => '0');
 					error_const_value			<= (others => '0');	
 			

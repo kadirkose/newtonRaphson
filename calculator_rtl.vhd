@@ -12,41 +12,41 @@ entity calculator_rtl is
 		degree							: in 	integer;
 		degree_min						: in 	integer;
 		variable_value					: in	std_logic_vector(31 downto 0):= (others => '0');
-		op_result						: out	std_logic_vector(31 downto 0):= (others => '0');
-		error_value						: out std_logic_vector(31 downto 0):= (others => '0');
-		complete_op_flag				: out	std_logic:= '0';
-		float_in0        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in1        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in2        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in3        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in4        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in5        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in6        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in7        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in8        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in9        				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in10						: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in11       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in12       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in13       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in14       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in15       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in16       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in17       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in18       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in19       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in20       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in21       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in22       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in23       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in24       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in25       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in26       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in27       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in28       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in29       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in30       				: in 	std_logic_vector(31 downto 0):= (others => '0');
-		float_in31       				: in 	std_logic_vector(31 downto 0):= (others => '0')
+		calculator_result				: out	std_logic_vector(31 downto 0):= (others => '0');
+		accuracy							: out std_logic_vector(31 downto 0):= (others => '0');
+		complete_op						: out	std_logic:= '0';
+		coefficient0        			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient1        			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient2        			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient3        			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient4        			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient5        			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient6        			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient7        			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient8        			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient9        			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient10					: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient11       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient12       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient13       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient14       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient15       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient16       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient17       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient18       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient19       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient20       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient21       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient22       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient23       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient24       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient25       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient26       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient27       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient28       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient29       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient30       			: in 	std_logic_vector(31 downto 0):= (others => '0');
+		coefficient31       			: in 	std_logic_vector(31 downto 0):= (others => '0')
 	);
 end calculator_rtl;
 
@@ -177,7 +177,7 @@ architecture logic of calculator_rtl is
 	type float16 is array(15 downto 0) of std_logic_vector(31 downto 0);
 	signal float_div_in1, float_div_in2, float_div_out : float16:= (others => "00000000000000000000000000000000");
 	signal float_add_in1, float_add_in2, float_add_out: float32:= (others => "00000000000000000000000000000000");
-	signal float_in : float32:= (others => "00000000000000000000000000000000");
+	signal coefficient : float32:= (others => "00000000000000000000000000000000");
 	signal float_substractor_in1	: std_logic_vector(31 downto 0):= (others => '0');
 	signal float_substractor_in2	: std_logic_vector(31 downto 0):= (others => '0');
 	signal float_substractor_out	: std_logic_vector(31 downto 0):= (others => '0');
@@ -187,9 +187,9 @@ architecture logic of calculator_rtl is
 	signal variable_value_int		: std_logic_vector(31 downto 0):= (others => '0');
 	signal cnt							: integer range 0 to 100:= 0;
 	
-	constant ADDER_DELAY 		: integer := 7;
-	constant MUlTIPLIER_DELAY  : integer := 3;
-	constant DIVIDER_DELAY 		: integer := 15;
+	constant ADDER_DELAY 		: integer := 10;
+	constant MUlTIPLIER_DELAY  : integer := 6;
+	constant DIVIDER_DELAY 		: integer := 20;
 
 	type state_machine is(
 		idle,
@@ -227,7 +227,7 @@ architecture logic of calculator_rtl is
 		wait_division,
 		initialize_substractor,
 		wait_substractor,
-		complete_op
+		complete_operation
 	);
 	signal state: state_machine := idle;
 	
@@ -1191,9 +1191,9 @@ architecture logic of calculator_rtl is
 			variable_inverse_power_array(29) <= (others => '0');
 			variable_inverse_power_array(30) <= (others => '0');
 			variable_inverse_power_array(31) <= (others => '0');
-			complete_op_flag		 				<= '0';
+			complete_op		 				<= '0';
 			variable_value_int					<= (others => '0');
-			op_result								<= (others => '0');
+			calculator_result						<= (others => '0');
 			der_subs_result						<= (others => '0');
 			subs_result								<= (others => '0');
 			cnt 										<= 0;
@@ -1205,108 +1205,108 @@ architecture logic of calculator_rtl is
 				when idle =>
 					if(start_op = '1') then
 						variable_value_int	<= variable_value;
-						float_in(0) 	<= float_in0;
-						float_in(1) 	<= float_in1;
-						float_in(2) 	<= float_in2; 
-						float_in(3) 	<= float_in3;
-						float_in(4) 	<= float_in4;
-						float_in(5) 	<= float_in5;
-						float_in(6) 	<= float_in6;
-						float_in(7) 	<= float_in7;
-						float_in(8) 	<= float_in8;
-						float_in(9) 	<= float_in9;
-						float_in(10) 	<= float_in10;
-						float_in(11) 	<= float_in11;
-						float_in(12) 	<= float_in12;
-						float_in(13) 	<= float_in13;
-						float_in(14) 	<= float_in14;
-						float_in(15) 	<= float_in15;
-						float_in(16) 	<= float_in16;
-						float_in(17) 	<= float_in17;
-						float_in(18) 	<= float_in18;
-						float_in(19) 	<= float_in19;
-						float_in(20) 	<= float_in20;
-						float_in(21) 	<= float_in21;
-						float_in(22) 	<= float_in22;
-						float_in(23) 	<= float_in23;
-						float_in(24) 	<= float_in24;
-						float_in(25) 	<= float_in25;
-						float_in(26) 	<= float_in26;
-						float_in(27) 	<= float_in27;
-						float_in(28) 	<= float_in28;
-						float_in(29) 	<= float_in29;
-						float_in(30) 	<= float_in30;
-						float_in(31) 	<= float_in31;
-						state 			<= initialize_derivative;
-						complete_op_flag		 				<= '0';
+						coefficient(0) 	<= coefficient0;
+						coefficient(1) 	<= coefficient1;
+						coefficient(2) 	<= coefficient2; 
+						coefficient(3) 	<= coefficient3;
+						coefficient(4) 	<= coefficient4;
+						coefficient(5) 	<= coefficient5;
+						coefficient(6) 	<= coefficient6;
+						coefficient(7) 	<= coefficient7;
+						coefficient(8) 	<= coefficient8;
+						coefficient(9) 	<= coefficient9;
+						coefficient(10) 	<= coefficient10;
+						coefficient(11) 	<= coefficient11;
+						coefficient(12) 	<= coefficient12;
+						coefficient(13) 	<= coefficient13;
+						coefficient(14) 	<= coefficient14;
+						coefficient(15) 	<= coefficient15;
+						coefficient(16) 	<= coefficient16;
+						coefficient(17) 	<= coefficient17;
+						coefficient(18) 	<= coefficient18;
+						coefficient(19) 	<= coefficient19;
+						coefficient(20) 	<= coefficient20;
+						coefficient(21) 	<= coefficient21;
+						coefficient(22) 	<= coefficient22;
+						coefficient(23) 	<= coefficient23;
+						coefficient(24) 	<= coefficient24;
+						coefficient(25) 	<= coefficient25;
+						coefficient(26) 	<= coefficient26;
+						coefficient(27) 	<= coefficient27;
+						coefficient(28) 	<= coefficient28;
+						coefficient(29) 	<= coefficient29;
+						coefficient(30) 	<= coefficient30;
+						coefficient(31) 	<= coefficient31;
+						state 				<= initialize_derivative;
+						complete_op		 	<= '0';
 					end if;
 					
 				when initialize_derivative=>
 					cnt <= 0;
 					float_mult_in1(0)  <= fp_const(31 - degree_min + 0);
-					float_mult_in2(0)  <= float_in(0);						
+					float_mult_in2(0)  <= coefficient(0);						
 					float_mult_in1(1)  <= fp_const(31 - degree_min + 1);
-					float_mult_in2(1)  <= float_in(1);						
+					float_mult_in2(1)  <= coefficient(1);						
 					float_mult_in1(2)  <= fp_const(31 - degree_min + 2);
-					float_mult_in2(2)  <= float_in(2);						
+					float_mult_in2(2)  <= coefficient(2);						
 					float_mult_in1(3)  <= fp_const(31 - degree_min + 3);
-					float_mult_in2(3)  <= float_in(3);						
+					float_mult_in2(3)  <= coefficient(3);						
 					float_mult_in1(4)  <= fp_const(31 - degree_min + 4);
-					float_mult_in2(4)  <= float_in(4);						
+					float_mult_in2(4)  <= coefficient(4);						
 					float_mult_in1(5)  <= fp_const(31 - degree_min + 5);
-					float_mult_in2(5)  <= float_in(5);						
+					float_mult_in2(5)  <= coefficient(5);						
 					float_mult_in1(6)  <= fp_const(31 - degree_min + 6);
-					float_mult_in2(6)  <= float_in(6);						
+					float_mult_in2(6)  <= coefficient(6);						
 					float_mult_in1(7)  <= fp_const(31 - degree_min + 7);
-					float_mult_in2(7)  <= float_in(7);						
+					float_mult_in2(7)  <= coefficient(7);						
 					float_mult_in1(8)  <= fp_const(31 - degree_min + 8);
-					float_mult_in2(8)  <= float_in(8);						
+					float_mult_in2(8)  <= coefficient(8);						
 					float_mult_in1(9)  <= fp_const(31 - degree_min + 9);
-					float_mult_in2(9)  <= float_in(9);						
+					float_mult_in2(9)  <= coefficient(9);						
 					float_mult_in1(10) <= fp_const(31 - degree_min + 10);
-					float_mult_in2(10) <= float_in(10);						
+					float_mult_in2(10) <= coefficient(10);						
 					float_mult_in1(11) <= fp_const(31 - degree_min + 11);
-					float_mult_in2(11) <= float_in(11);						
+					float_mult_in2(11) <= coefficient(11);						
 					float_mult_in1(12) <= fp_const(31 - degree_min + 12);
-					float_mult_in2(12) <= float_in(12);						
+					float_mult_in2(12) <= coefficient(12);						
 					float_mult_in1(13) <= fp_const(31 - degree_min + 13);
-					float_mult_in2(13) <= float_in(13);						
+					float_mult_in2(13) <= coefficient(13);						
 					float_mult_in1(14) <= fp_const(31 - degree_min + 14);
-					float_mult_in2(14) <= float_in(14);						
+					float_mult_in2(14) <= coefficient(14);						
 					float_mult_in1(15) <= fp_const(31 - degree_min + 15);
-					float_mult_in2(15) <= float_in(15);		
+					float_mult_in2(15) <= coefficient(15);		
 					float_mult_in1(16) <= fp_const(31 - degree_min + 16);
-					float_mult_in2(16) <= float_in(16);	
+					float_mult_in2(16) <= coefficient(16);	
 					float_mult_in1(17) <= fp_const(31 - degree_min + 17);
-					float_mult_in2(17) <= float_in(17);	
+					float_mult_in2(17) <= coefficient(17);	
 					float_mult_in1(18) <= fp_const(31 - degree_min + 18);
-					float_mult_in2(18) <= float_in(18);	
+					float_mult_in2(18) <= coefficient(18);	
 					float_mult_in1(19) <= fp_const(31 - degree_min + 19);
-					float_mult_in2(19) <= float_in(19);	
+					float_mult_in2(19) <= coefficient(19);	
 					float_mult_in1(20) <= fp_const(31 - degree_min + 20);
-					float_mult_in2(20) <= float_in(20);	
+					float_mult_in2(20) <= coefficient(20);	
 					float_mult_in1(21) <= fp_const(31 - degree_min + 21);
-					float_mult_in2(21) <= float_in(21);	
+					float_mult_in2(21) <= coefficient(21);	
 					float_mult_in1(22) <= fp_const(31 - degree_min + 22);
-					float_mult_in2(22) <= float_in(22);
+					float_mult_in2(22) <= coefficient(22);
 					float_mult_in1(23) <= fp_const(31 - degree_min + 23);
-					float_mult_in2(23) <= float_in(23);
+					float_mult_in2(23) <= coefficient(23);
 					float_mult_in1(24) <= fp_const(31 - degree_min + 24);
-					float_mult_in2(24) <= float_in(24);
+					float_mult_in2(24) <= coefficient(24);
 					float_mult_in1(25) <= fp_const(31 - degree_min + 25);
-					float_mult_in2(25) <= float_in(25);
+					float_mult_in2(25) <= coefficient(25);
 					float_mult_in1(26) <= fp_const(31 - degree_min + 26);
-					float_mult_in2(26) <= float_in(26);
+					float_mult_in2(26) <= coefficient(26);
 					float_mult_in1(27) <= fp_const(31 - degree_min + 27);
-					float_mult_in2(27) <= float_in(27);
+					float_mult_in2(27) <= coefficient(27);
 					float_mult_in1(28) <= fp_const(31 - degree_min + 28);
-					float_mult_in2(28) <= float_in(28);
+					float_mult_in2(28) <= coefficient(28);
 					float_mult_in1(29) <= fp_const(31 - degree_min + 29);
-					float_mult_in2(29) <= float_in(29);
+					float_mult_in2(29) <= coefficient(29);
 					float_mult_in1(30) <= fp_const(31 - degree_min + 30);
-					float_mult_in2(30) <= float_in(30);
+					float_mult_in2(30) <= coefficient(30);
 					float_mult_in1(31) <= fp_const(31 - degree_min + 31);
-					float_mult_in2(31) <= float_in(31);				
+					float_mult_in2(31) <= coefficient(31);				
 					variable_power_array(0)	<= "00111111100000000000000000000000"; -- float '1'
 					variable_power_array(1) <= variable_value_int(31 downto 0); 
 					state <= wait_mult_op;
@@ -1647,7 +1647,7 @@ architecture logic of calculator_rtl is
 				when wait_derivative_multiply =>
 					if(cnt = MULTIPLIER_DELAY) then
 						cnt <= 0;
-						state 			<= substitution_multiply;
+						state <= substitution_multiply;
 						derivative_mult_result(0) 	 <= float_mult_out(0);
 						derivative_mult_result(1) 	 <= float_mult_out(1);
 						derivative_mult_result(2) 	 <= float_mult_out(2);
@@ -1689,7 +1689,7 @@ architecture logic of calculator_rtl is
 						cnt <= 0;
 						state <= wait_substitution_multiply;
 					else
-						float_mult_in1(cnt) <= float_in(cnt);
+						float_mult_in1(cnt) <= coefficient(cnt);
 						if(cnt < degree_min) then
 							float_mult_in2(cnt) <= variable_inverse_power_array(degree_min - cnt);
 						elsif(cnt = degree_min) then
@@ -1875,7 +1875,7 @@ architecture logic of calculator_rtl is
 				when wait_subs_add4 =>
 					if(cnt = ADDER_DELAY) then
 						cnt <= 0;
-						state 			<= initialize_subs_add5;
+						state <= initialize_subs_add5;
 					else
 						cnt <= cnt + 1;
 					end if;
@@ -1903,10 +1903,10 @@ architecture logic of calculator_rtl is
 					cnt <= 0;
 					if(der_subs_result = "00000000000000000000000000000000") then
 						state <= initialize_substractor;
-						error_value <= (others => '0');
+						accuracy <= (others => '0');
 					elsif(subs_result = "00000000000000000000000000000000") then
 						state <= initialize_substractor;
-						error_value <= (others => '0');
+						accuracy <= (others => '0');
 					else
 						float_div_in1(0) 			<= subs_result;
 						float_div_in2(0) 			<= der_subs_result;
@@ -1917,28 +1917,28 @@ architecture logic of calculator_rtl is
 					if(cnt = DIVIDER_DELAY) then
 						cnt <= 0;
 						state 				<= initialize_substractor;	
-						error_value 		<= float_div_out(0);
+						accuracy 		<= float_div_out(0);
 					else
 						cnt <= cnt + 1;
 					end if;
 					
 				when initialize_substractor =>
 					cnt <= 0;
-					float_substractor_in2 	<= error_value;
+					float_substractor_in2 	<= accuracy;
 					float_substractor_in1 	<= variable_value_int;
 					state <= wait_substractor;
 				
 				when wait_substractor =>
 					if(cnt = ADDER_DELAY) then
 						cnt <= 0;
-						state <= complete_op;
+						state <= complete_operation;
 					else
 						cnt <= cnt + 1;
 					end if;
 					
-				when complete_op =>
-					complete_op_flag 	<= '1';
-					op_result <= float_substractor_out;
+				when complete_operation =>
+					complete_op 	<= '1';
+					calculator_result <= float_substractor_out;
 					state <= idle;
 				
 			end case;
