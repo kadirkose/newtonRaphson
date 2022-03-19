@@ -130,8 +130,8 @@ architecture logic of newton_raphson is
 	signal coefficient		: float32:= (others => "00000000000000000000000000000000");
 	
 	signal float_comp_in1			: std_logic_vector(31 downto 0):= (others => '0');
-	signal accuracy				: std_logic_vector(31 downto 0):= (others => '0');
-	signal comparator_result			: std_logic_vector(0 downto 0) := (others => '0');
+	signal accuracy					: std_logic_vector(31 downto 0):= (others => '0');
+	signal comparator_result		: std_logic_vector(0 downto 0) := (others => '0');
 	signal iteration_count			: std_logic_vector(31 downto 0):= (others => '0');
 	signal error_const_value		: std_logic_vector(31 downto 0):= (others => '0');
 	signal float_comp_in2			: std_logic_vector(31 downto 0):= (others => '0');
@@ -381,10 +381,16 @@ architecture logic of newton_raphson is
 					total_cycle_count <= total_cycle_count + 1;
 					if(u_valid_out = '1') then																-- if data came from UART	
 						cnt 		<= (cnt + 1);
-						variable_value((31 - cnt*8) downto (24 - cnt*8)) <= u_data_out;
 						if(cnt = 3) then
 							cnt 			<= 0;
 							state 		<= get_error_val;
+							variable_value(31 downto 24) <= u_data_out;
+						elsif(cnt = 2) then
+							variable_value(23 downto 16) <= u_data_out;
+						elsif(cnt = 1) then
+							variable_value(15 downto 8) <= u_data_out;
+						else
+							variable_value(7 downto 0) <= u_data_out;
 						end if;
 					end if;
 					
@@ -392,10 +398,16 @@ architecture logic of newton_raphson is
 					total_cycle_count <= total_cycle_count + 1;
 					if(u_valid_out = '1') then																-- if data came from UART	
 						cnt 		<= (cnt + 1);
-						error_const_value((31 - cnt*8) downto (24 - cnt*8)) <= u_data_out;
 						if(cnt = 3) then
 							cnt 			<= 0;
 							state 		<= get_iteration_val;
+							error_const_value(31 downto 24) <= u_data_out;
+						elsif(cnt = 2) then
+							error_const_value(23 downto 16) <= u_data_out;
+						elsif(cnt = 1) then
+							error_const_value(15 downto 8) <= u_data_out;
+						else
+							error_const_value(7 downto 0) <= u_data_out;
 						end if;
 					end if;
 					
@@ -403,10 +415,16 @@ architecture logic of newton_raphson is
 					total_cycle_count <= total_cycle_count + 1;
 					if(u_valid_out = '1') then																-- if data came from UART	
 						cnt 		<= (cnt + 1);
-						interation_limit((31 - cnt*8) downto (24 - cnt*8)) <= u_data_out;
 						if(cnt = 3) then
 							cnt 			<= 0;
 							state 		<= get_coefficients;
+							interation_limit(31 downto 24) <= u_data_out;
+						elsif(cnt = 2) then
+							interation_limit(23 downto 16) <= u_data_out;
+						elsif(cnt = 1) then
+							interation_limit(15 downto 8) <= u_data_out;
+						else
+							interation_limit(7 downto 0) <= u_data_out;
 						end if;
 					end if;
 					
@@ -423,7 +441,15 @@ architecture logic of newton_raphson is
 					
 					if(u_valid_out = '1') then																-- if data came from UART	
 						cnt 			<= (cnt + 1);
-						coefficient(count)((31 - cnt*8) downto (24 - cnt*8)) <= u_data_out;
+						if(cnt = 3)  then
+							coefficient(count)(31 downto 24) <= u_data_out;
+						elsif(cnt = 2) then
+							coefficient(count)(23 downto 16) <= u_data_out;
+						elsif(cnt = 1) then
+							coefficient(count)(15 downto 8) <= u_data_out;
+						else
+							coefficient(count)(7 downto 0) <= u_data_out;
+						end if;
 					end if;
 					
 				when initialize_calculator =>
@@ -442,7 +468,6 @@ architecture logic of newton_raphson is
 						float_comp_in1(30 downto 0) <= accuracy(30 downto 0);
 						float_comp_in2 <= error_const_value;
 						state <= wait_compare;
-						leds <= calculator_result(30 downto 21);
 					end if;
 	
 				when wait_compare =>
@@ -458,11 +483,12 @@ architecture logic of newton_raphson is
 				when complete_compare =>
 					cycle_count <= cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
+					leds <= accuracy(30 downto 21);
 					if(iteration_count < (interation_limit + 1)) then 
 						if(comparator_result = "0" ) then 
 							state <= initialize_calculator; 
 							variable_value <= calculator_result; 
-						else 
+						else
 							state <= send_result; 
 						end if; 
 					else
