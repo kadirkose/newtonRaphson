@@ -92,15 +92,6 @@ architecture logic of calculator_rtl is
 		);
 	end component;	
 	
-	component ip_core_operation_wait is
-		port(
-			clk					: in 	std_logic;
-			ip_wait_reset		: in 	std_logic;
-			ip_op_wait_ok		: out std_logic;
-			ip_op_wait			: in	std_logic_vector(2 downto 0):= "000"
-		);
-	end component;
-	
 	-- single precision floating point numbers that using in calculations
 	type float61 is array(0 to 61) of std_logic_vector(31 downto 0);
 	signal fp_const: float61:= (
@@ -168,10 +159,9 @@ architecture logic of calculator_rtl is
 		"01000010011101000000000000000000"
 	);
 	
-	type float33 is array(32 downto 0) of std_logic_vector(31 downto 0);
 	type float32 is array(31 downto 0) of std_logic_vector(31 downto 0);
 	signal float_mult_in1, float_mult_in2, float_mult_out, mult_degree_coef, derivative_mult_result : float32:= (others => "00000000000000000000000000000000");
-	signal variable_power_array : float33:= (others => "00000000000000000000000000000000");
+	signal variable_power_array : float32:= (others => "00000000000000000000000000000000");
 	
 	signal float_div_in1, float_div_in2, float_div_out : std_logic_vector(31 downto 0):= (others => '0');
 	signal float_add_in1, float_add_in2, float_add_out: float32:= (others => "00000000000000000000000000000000");
