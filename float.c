@@ -12,8 +12,6 @@
 
 int degree_min, degree_max;
 int cpldUart;
-unsigned int floatingPointNumber[floatSize]= {0};
-struct timespec ts_stop_fpga_comp;
 __uint32_t iteration_count;
 
 typedef union {
@@ -34,30 +32,6 @@ typedef union {
 floatingPoint fPoint[maxFloatNumber];
 floatingPoint fPointTemp;
 floatingPoint errRate;
-
-int * convertToFloat(unsigned int sgn,unsigned int exp, unsigned int mnt)
-{
-	int k;
-
-	floatingPointNumber[0]= sgn;
-
-	for (k= 7; k >= 0; k--)
-	{
-		if((exp >> k) & 1)
-			floatingPointNumber[8-k]= 1;
-		else
-			floatingPointNumber[8-k]= 0;
-	}
-
-	for (k= 22; k >= 0; k--)
-	{
-		if((mnt >> k) & 1)
-			floatingPointNumber[31-k]= 1;
-		else
-			floatingPointNumber[31-k]= 0;
-	}
-	return floatingPointNumber;
-}
 
 void printBinary(int n, int i)
 {
@@ -123,7 +97,6 @@ int sendToCpld()
 	char degree_min_pos;
 	char data;
 
-
 	if(degree_min < 0)
 		degree_min_pos= -1*degree_min;
 	else
@@ -131,33 +104,15 @@ int sendToCpld()
 
 	write(cpldUart, &degree_min_pos, 1);
 	write(cpldUart, (char*)&degree_max, 1);
-	for(bitCount= 3; bitCount > -1; bitCount--)
-	{
-		data = (fPointTemp.bit_vector >> (bitCount * 8)) & 0xFF;
-		write(cpldUart, &data, 1);
-	}
-
-	for(bitCount= 3; bitCount > -1; bitCount--)
-	{
-		data = (errRate.bit_vector >> (bitCount * 8)) & 0xFF;
-		write(cpldUart, &data, 1);
-	}
-
-	for(bitCount= 3; bitCount > -1; bitCount--)
-	{
-		data = (iteration_count >> (bitCount * 8)) & 0xFF;
-		write(cpldUart, &data, 1);
-	}
+	write(cpldUart, &fPointTemp.bit_vector, 4);
+	write(cpldUart, &errRate.bit_vector, 4);
+	write(cpldUart, &iteration_count, 4);
 
 	for(degreeCount= 0; degreeCount <= (degree_max-degree_min); degreeCount++)
 	{
-		for(bitCount= 3; bitCount > -1; bitCount--)
-		{
-			data = (fPoint[degreeCount].bit_vector >> (bitCount * 8)) & 0xFF;
-			write(cpldUart, &data, 1);
-		}
-
+		write(cpldUart, &fPoint[degreeCount].bit_vector , 4);
 	}
+
 	return 0;
 }
 
@@ -171,7 +126,6 @@ int receiveFromCpld()
 
 	if(read(cpldUart, rcvData, 4) > 0)
 	{
-		clock_gettime(CLOCK_MONOTONIC, &ts_stop_fpga_comp);
 		memcpy(&rcvDataInt, (unsigned int*)&rcvData, sizeof(rcvData));
 		memcpy(&fRcvData,   &rcvData, sizeof(rcvData));
 		printf("FPGA Result for given variable substitution :                 %.040f \n",fRcvData);
@@ -180,9 +134,7 @@ int receiveFromCpld()
 		printf("\n");
 	}
 	else
-	{
 		return 1;
-	}
 
 	if(read(cpldUart, rcvData, 4) > 0)
 	{
@@ -222,26 +174,27 @@ int receiveFromCpld()
 int computeDerivative()
 {
 	int degreeCount;
-	float subsResult=0, derSubsResult=0, err=0, result;
+	float subsResult=0, derSubsResult=0, err=0, result, variable;
 	int iter_count = 0;
 	printf("\n");
+	variable = fPointTemp.f;
 	while(iter_count < iteration_count)
 	{
 		subsResult = 0;
 		derSubsResult = 0;
 		for(degreeCount= 0; degreeCount < (degree_max-degree_min+1); degreeCount++)
 		{
-			if((fPointTemp.f == 0) && (degree_min != 0))
+			if((variable == 0) && (degree_min != 0))
 			{
 				printf("Process is stopped because variable is zero. x/0 is nan");
 				goto exit;
 			}
 
-			subsResult+= (fPoint[degreeCount].f) * (pow(fPointTemp.f, (degreeCount+degree_min)));
+			subsResult+= (fPoint[degreeCount].f) * (pow(variable, (degreeCount+degree_min)));
 			if(degreeCount+degree_min == 0)
 				derSubsResult+= 0;
 			else
-				derSubsResult+= (fPoint[degreeCount].f * (degreeCount+degree_min)) * (pow(fPointTemp.f, (degreeCount+degree_min-1)));
+				derSubsResult+= (fPoint[degreeCount].f * (degreeCount+degree_min)) * (pow(variable, (degreeCount+degree_min-1)));
 		}
 		printf("%d. iteration\n",iter_count+1);
 		if(subsResult == 0 || derSubsResult == 0)
@@ -249,14 +202,14 @@ int computeDerivative()
 
 		err = subsResult / derSubsResult;
 		printf("subs: %.040f  derivative subs: %.040f  error: %.040f\n", subsResult, derSubsResult, err);
-		fPointTemp.f = fPointTemp.f - err;
-		printf("root: %.040f\n\n", fPointTemp.f);
+		variable = variable - err;
+		printf("root: %.040f\n\n", variable);
 		if(fabs(err) < errRate.f)
 			break;
 		iter_count += 1;
 	}
 exit:
-	printf("\nResult in float :                                             %.040f\n", fPointTemp.f);
+	printf("\nResult in float :                                             %.040f\n", variable);
 	printf("Result in IEEE-754 representation float :                     %d", fPointTemp.raw.sign);
 	printBinary(fPointTemp.raw.exponent, 8);
 	printBinary(fPointTemp.raw.mantissa, 23);
@@ -299,8 +252,8 @@ int uartInit()
 	tty.c_cc[VMIN] = 0;
 
 	// Set in/out baud rate to be 115200
-	cfsetispeed(&tty, 1152000);
-	cfsetospeed(&tty, 1152000);
+	cfsetispeed(&tty, 115200);
+	cfsetospeed(&tty, 115200);
 
 	// Save tty settings, also checking for error
 	if (tcsetattr(cpldUart, TCSANOW, &tty) != 0) {
@@ -321,21 +274,12 @@ int main()
 	double cpu_compute_time;
 	double total_cpld_time;
 
-	error = uartInit();
-	if(error)
-	{
-		printf("ERROR uartInit!\n");
-		printf("Check the ttyUSB number!\n");
-		return (1);
-	}
-
 	error = getFloat();
 	if(error)
 	{
 		printf("ERROR getFloat! \n");
 		return (1);
 	}
-
 
 	clock_gettime(CLOCK_MONOTONIC, &ts_start_compute);
 	error = computeDerivative();
@@ -348,6 +292,14 @@ int main()
 		return (1);
 	}
 	
+	error = uartInit();
+	if(error)
+	{
+		printf("ERROR uartInit!\n");
+		printf("Check the ttyUSB number!\n");
+		return (1);
+	}
+
 	error = sendToCpld();
 	if(error)
 	{
