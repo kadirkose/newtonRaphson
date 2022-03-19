@@ -227,7 +227,8 @@ architecture logic of calculator_rtl is
 		wait_division,
 		initialize_substractor,
 		wait_substractor,
-		complete_operation
+		complete_operation,
+		reset_operation
 	);
 	signal state: state_machine := idle;
 	
@@ -1904,9 +1905,6 @@ architecture logic of calculator_rtl is
 					if(der_subs_result = "00000000000000000000000000000000") then
 						state <= initialize_substractor;
 						accuracy <= (others => '0');
-					elsif(subs_result = "00000000000000000000000000000000") then
-						state <= initialize_substractor;
-						accuracy <= (others => '0');
 					else
 						float_div_in1(0) 			<= subs_result;
 						float_div_in2(0) 			<= der_subs_result;
@@ -1916,8 +1914,8 @@ architecture logic of calculator_rtl is
 				when wait_division =>
 					if(cnt = DIVIDER_DELAY) then
 						cnt <= 0;
-						state 				<= initialize_substractor;	
-						accuracy 		<= float_div_out(0);
+						state 	<= initialize_substractor;	
+						accuracy <= float_div_out(0);
 					else
 						cnt <= cnt + 1;
 					end if;
@@ -1939,6 +1937,10 @@ architecture logic of calculator_rtl is
 				when complete_operation =>
 					complete_op 	<= '1';
 					calculator_result <= float_substractor_out;
+					state <= reset_operation;
+				
+				when	reset_operation =>
+					complete_op 	<= '0';
 					state <= idle;
 				
 			end case;
