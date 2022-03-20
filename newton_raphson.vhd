@@ -484,7 +484,7 @@ architecture logic of newton_raphson is
 					cycle_count <= cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
 					leds <= accuracy(30 downto 21);
-					if(iteration_count < (interation_limit + 1)) then 
+					if(iteration_count < interation_limit) then 
 						if(comparator_result = "0" ) then 
 							state <= initialize_calculator; 
 							variable_value <= calculator_result; 

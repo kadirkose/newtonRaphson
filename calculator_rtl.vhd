@@ -175,9 +175,9 @@ architecture logic of calculator_rtl is
 	signal variable_value_int		: std_logic_vector(31 downto 0):= (others => '0');
 	signal cnt							: integer range 0 to 100:= 0;
 	
-	constant ADDER_DELAY 		: integer := 10;
-	constant MUlTIPLIER_DELAY  : integer := 6;
-	constant DIVIDER_DELAY 		: integer := 20;
+	constant ADDER_DELAY 		: integer := 8;
+	constant MUlTIPLIER_DELAY  : integer := 4;
+	constant DIVIDER_DELAY 		: integer := 17;
 
 	type state_machine is(
 		idle,
@@ -1165,7 +1165,11 @@ architecture logic of calculator_rtl is
 						mult_degree_coef(29) <= float_mult_out(29);
 						mult_degree_coef(30) <= float_mult_out(30);
 						mult_degree_coef(31) <= float_mult_out(31);
-						state 				<= mult1_op;
+						if(degree > 1) then
+							state <= mult1_op;
+						else
+							state <= derivative_multiply;
+						end if;
 					else
 						cnt <= cnt + 1;
 					end if;
@@ -1174,16 +1178,21 @@ architecture logic of calculator_rtl is
 					cnt <= 0;
 					float_mult_in1(0) <= variable_value_int(31 downto 0);
 					float_mult_in2(0) <= variable_value_int(31 downto 0);
-					state 				<= wait_mult1_op;
-					
+					state <= wait_mult1_op;
+				
 				when wait_mult1_op =>
 					if(cnt = MULTIPLIER_DELAY) then
 						cnt <= 0;
-						state 				<= mult2_op;
+						if(degree > 2) then
+							state <= mult2_op;
+						else
+							state <= derivative_multiply;
+						end if;
 						variable_power_array(2)	<= float_mult_out(0);
 					else
 						cnt <= cnt + 1;
 					end if;
+					
 					
 				when mult2_op =>
 					cnt <= 0;
@@ -1191,14 +1200,20 @@ architecture logic of calculator_rtl is
 					float_mult_in2(0) 	<= variable_power_array(2);
 					float_mult_in1(1) 	<= variable_power_array(2);
 					float_mult_in2(1) 	<= variable_power_array(2);
-					state 					<= wait_mult2_op;
-					
+					state <= wait_mult2_op;
+				
 				when wait_mult2_op =>
 					if(cnt = MULTIPLIER_DELAY) then
 						cnt <= 0;
 						variable_power_array(3)	<= float_mult_out(0);
-						variable_power_array(4)	<= float_mult_out(1);
-						state <= mult3_op;
+						if(degree > 3) then
+							variable_power_array(4)	<= float_mult_out(1);
+						end if;
+						if(degree > 4) then
+							state <= mult3_op;
+						else
+							state <= derivative_multiply;
+						end if;
 					else
 						cnt <= cnt + 1;
 					end if;
@@ -1213,8 +1228,8 @@ architecture logic of calculator_rtl is
 					float_mult_in2(2) 	<= variable_power_array(4);
 					float_mult_in1(3) 	<= variable_power_array(4);
 					float_mult_in2(3) 	<= variable_power_array(4);
-					state 					<= wait_mult3_op;
-					
+					state <= wait_mult3_op;
+				
 				when wait_mult3_op =>
 					if(cnt = MULTIPLIER_DELAY) then
 						cnt <= 0;
@@ -1222,7 +1237,11 @@ architecture logic of calculator_rtl is
 						variable_power_array(6)	<= float_mult_out(1);
 						variable_power_array(7)	<= float_mult_out(2);
 						variable_power_array(8)	<= float_mult_out(3);
-						state <= mult4_op;
+						if(degree > 8) then
+							state <= mult4_op;
+						else
+							state <= derivative_multiply;
+						end if;
 					else
 						cnt <= cnt + 1;
 					end if;
@@ -1245,20 +1264,38 @@ architecture logic of calculator_rtl is
 					float_mult_in2(6) 		<= variable_power_array(8);
 					float_mult_in1(7) 		<= variable_power_array(8);
 					float_mult_in2(7) 		<= variable_power_array(8);
-					state 					<= wait_mult4_op;
-					
+					state <= wait_mult4_op;
+				
 				when wait_mult4_op =>
 					if(cnt = MULTIPLIER_DELAY) then
 						cnt <= 0;
 						variable_power_array(9)					   <= float_mult_out(0);
-						variable_power_array(10)					<= float_mult_out(1);
-						variable_power_array(11)					<= float_mult_out(2);
-						variable_power_array(12)					<= float_mult_out(3);
-						variable_power_array(13)					<= float_mult_out(4);
-						variable_power_array(14)					<= float_mult_out(5);
-						variable_power_array(15)					<= float_mult_out(6);
-						variable_power_array(16)					<= float_mult_out(7);
-						state <= mult5_op;
+						if(degree > 9) then
+							variable_power_array(10)					<= float_mult_out(1);
+						end if;
+						if(degree > 10) then
+							variable_power_array(11)					<= float_mult_out(2);
+						end if;
+						if(degree > 11) then
+							variable_power_array(12)					<= float_mult_out(3);
+						end if;
+						if(degree > 12) then
+							variable_power_array(13)					<= float_mult_out(4);
+						end if;
+						if(degree > 13) then
+							variable_power_array(14)					<= float_mult_out(5);
+						end if;
+						if(degree > 14) then
+							variable_power_array(15)					<= float_mult_out(6);
+						end if;
+						if(degree > 15) then
+							variable_power_array(16)					<= float_mult_out(7);
+						end if;
+						if(degree > 16) then
+							state <= mult5_op;
+						else
+							state <= derivative_multiply;
+						end if;
 					else
 						cnt <= cnt + 1;
 					end if;
@@ -1295,26 +1332,54 @@ architecture logic of calculator_rtl is
 					float_mult_in2(13) 		<= variable_power_array(15);
 					float_mult_in1(14) 		<= variable_power_array(15);
 					float_mult_in2(14) 		<= variable_power_array(16);
-					state 					<= wait_mult5_op;
-					
+					state <= wait_mult5_op;
+				
 				when wait_mult5_op =>
 					if(cnt = MULTIPLIER_DELAY) then
 						cnt <= 0;
 						variable_power_array(17)					<= float_mult_out(0);
-						variable_power_array(18)					<= float_mult_out(1);
-						variable_power_array(19)					<= float_mult_out(2);
-						variable_power_array(20)					<= float_mult_out(3);
-						variable_power_array(21)					<= float_mult_out(4);
-						variable_power_array(22)					<= float_mult_out(5);
-						variable_power_array(23)					<= float_mult_out(6);
-						variable_power_array(24)					<= float_mult_out(7);
-						variable_power_array(25)					<= float_mult_out(8);
-						variable_power_array(26)					<= float_mult_out(9);
-						variable_power_array(27)					<= float_mult_out(10);
-						variable_power_array(28)					<= float_mult_out(11);
-						variable_power_array(29)					<= float_mult_out(12);
-						variable_power_array(30)					<= float_mult_out(13);
-						variable_power_array(31)					<= float_mult_out(14);
+						if(degree > 17) then
+							variable_power_array(18)					<= float_mult_out(1);
+						end if;
+						if(degree > 18) then
+							variable_power_array(19)					<= float_mult_out(2);
+						end if;
+						if(degree > 19) then
+							variable_power_array(20)					<= float_mult_out(3);
+						end if;
+						if(degree > 20) then
+							variable_power_array(21)					<= float_mult_out(4);
+						end if;
+						if(degree > 21) then
+							variable_power_array(22)					<= float_mult_out(5);
+						end if;
+						if(degree > 22) then
+							variable_power_array(23)					<= float_mult_out(6);
+						end if;
+						if(degree > 23) then
+							variable_power_array(24)					<= float_mult_out(7);
+						end if;
+						if(degree > 24) then
+							variable_power_array(25)					<= float_mult_out(8);
+						end if;
+						if(degree > 25) then
+							variable_power_array(26)					<= float_mult_out(9);
+						end if;
+						if(degree > 26) then
+							variable_power_array(27)					<= float_mult_out(10);
+						end if;
+						if(degree > 27) then
+							variable_power_array(28)					<= float_mult_out(11);
+						end if;
+						if(degree > 28) then
+							variable_power_array(29)					<= float_mult_out(12);
+						end if;
+						if(degree > 29) then
+							variable_power_array(30)					<= float_mult_out(13);
+						end if;
+						if(degree > 30) then
+							variable_power_array(31)					<= float_mult_out(14);
+						end if;
 						state 	<= derivative_multiply;
 					else
 						cnt <= cnt + 1;
@@ -1388,50 +1453,51 @@ architecture logic of calculator_rtl is
 					float_mult_in1(31) <= variable_power_array(degree_min + 30);
 					float_mult_in2(31) <= mult_degree_coef(31);	
 					
-					
 				when wait_derivative_multiply =>
 					if(cnt = MULTIPLIER_DELAY) then
 						cnt <= 0;
 						state <= substitution_multiply;
-						derivative_mult_result(0) 	 <= float_mult_out(0);
-						derivative_mult_result(1) 	 <= float_mult_out(1);
-						derivative_mult_result(2) 	 <= float_mult_out(2);
-						derivative_mult_result(3) 	 <= float_mult_out(3);
-						derivative_mult_result(4) 	 <= float_mult_out(4);
-						derivative_mult_result(5) 	 <= float_mult_out(5);
-						derivative_mult_result(6) 	 <= float_mult_out(6);
-						derivative_mult_result(7) 	 <= float_mult_out(7);
-						derivative_mult_result(8) 	 <= float_mult_out(8);
-						derivative_mult_result(9) 	 <= float_mult_out(9);
-						derivative_mult_result(10)  <= float_mult_out(10);
-						derivative_mult_result(11)  <= float_mult_out(11);
-						derivative_mult_result(12)  <= float_mult_out(12);
-						derivative_mult_result(13)  <= float_mult_out(13);
-						derivative_mult_result(14)  <= float_mult_out(14);
-						derivative_mult_result(15)  <= float_mult_out(15);
-						derivative_mult_result(16)  <= float_mult_out(16);
-						derivative_mult_result(17)  <= float_mult_out(17);
-						derivative_mult_result(18)  <= float_mult_out(18);
-						derivative_mult_result(19)  <= float_mult_out(19);
-						derivative_mult_result(20)  <= float_mult_out(20);
-						derivative_mult_result(21)  <= float_mult_out(21);
-						derivative_mult_result(22)  <= float_mult_out(22);
-						derivative_mult_result(23)  <= float_mult_out(23);
-						derivative_mult_result(24)  <= float_mult_out(24);
-						derivative_mult_result(25)  <= float_mult_out(25);
-						derivative_mult_result(26)  <= float_mult_out(26);
-						derivative_mult_result(27)  <= float_mult_out(27);
-						derivative_mult_result(28)  <= float_mult_out(28);
-						derivative_mult_result(29)  <= float_mult_out(29);
-						derivative_mult_result(30)  <= float_mult_out(30);
-						derivative_mult_result(31)  <= float_mult_out(31);
 					else
 						cnt <= cnt + 1;
 					end if;
 					
 				when substitution_multiply =>
-					state <= wait_substitution_multiply;
 					cnt <= 0;
+					state <= wait_substitution_multiply;
+					/* register derivative mult result */
+					derivative_mult_result(0) 	 <= float_mult_out(0);
+					derivative_mult_result(1) 	 <= float_mult_out(1);
+					derivative_mult_result(2) 	 <= float_mult_out(2);
+					derivative_mult_result(3) 	 <= float_mult_out(3);
+					derivative_mult_result(4) 	 <= float_mult_out(4);
+					derivative_mult_result(5) 	 <= float_mult_out(5);
+					derivative_mult_result(6) 	 <= float_mult_out(6);
+					derivative_mult_result(7) 	 <= float_mult_out(7);
+					derivative_mult_result(8) 	 <= float_mult_out(8);
+					derivative_mult_result(9) 	 <= float_mult_out(9);
+					derivative_mult_result(10)  <= float_mult_out(10);
+					derivative_mult_result(11)  <= float_mult_out(11);
+					derivative_mult_result(12)  <= float_mult_out(12);
+					derivative_mult_result(13)  <= float_mult_out(13);
+					derivative_mult_result(14)  <= float_mult_out(14);
+					derivative_mult_result(15)  <= float_mult_out(15);
+					derivative_mult_result(16)  <= float_mult_out(16);
+					derivative_mult_result(17)  <= float_mult_out(17);
+					derivative_mult_result(18)  <= float_mult_out(18);
+					derivative_mult_result(19)  <= float_mult_out(19);
+					derivative_mult_result(20)  <= float_mult_out(20);
+					derivative_mult_result(21)  <= float_mult_out(21);
+					derivative_mult_result(22)  <= float_mult_out(22);
+					derivative_mult_result(23)  <= float_mult_out(23);
+					derivative_mult_result(24)  <= float_mult_out(24);
+					derivative_mult_result(25)  <= float_mult_out(25);
+					derivative_mult_result(26)  <= float_mult_out(26);
+					derivative_mult_result(27)  <= float_mult_out(27);
+					derivative_mult_result(28)  <= float_mult_out(28);
+					derivative_mult_result(29)  <= float_mult_out(29);
+					derivative_mult_result(30)  <= float_mult_out(30);
+					derivative_mult_result(31)  <= float_mult_out(31);
+					/* initialize multipliers */
 					float_mult_in1(0)  <= variable_power_array(degree_min);
 					float_mult_in2(0)  <= coefficient(0);						
 					float_mult_in1(1)  <= variable_power_array(degree_min + 1);
@@ -1501,7 +1567,7 @@ architecture logic of calculator_rtl is
 				when wait_substitution_multiply =>
 					if(cnt = MULTIPLIER_DELAY) then
 						cnt <= 0;
-						state 			<= initialize_subs_add1;
+						state <= initialize_subs_add1;
 					else
 						cnt <= cnt + 1;
 					end if;
