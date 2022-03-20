@@ -176,8 +176,15 @@ int computeDerivative()
 	int degreeCount;
 	float subsResult=0, derSubsResult=0, err=0, result, variable;
 	int iter_count = 0;
+	struct timespec ts_start_compute;
+	struct timespec ts_stop_compute;
+	double cpu_compute_time;
+	
 	printf("\n");
 	variable = fPointTemp.f;
+
+	clock_gettime(CLOCK_MONOTONIC, &ts_start_compute);
+	
 	while(iter_count < iteration_count)
 	{
 		subsResult = 0;
@@ -196,24 +203,28 @@ int computeDerivative()
 			else
 				derSubsResult+= (fPoint[degreeCount].f * (degreeCount+degree_min)) * (pow(variable, (degreeCount+degree_min-1)));
 		}
-		printf("%d. iteration\n",iter_count+1);
+		//printf("%d. iteration\n",iter_count+1);
 		if(subsResult == 0 || derSubsResult == 0)
 			goto exit;
 
 		err = subsResult / derSubsResult;
-		printf("subs: %.040f  derivative subs: %.040f  error: %.040f\n", subsResult, derSubsResult, err);
+		//printf("subs: %.040f  derivative subs: %.040f  error: %.040f\n", subsResult, derSubsResult, err);
 		variable = variable - err;
-		printf("root: %.040f\n\n", variable);
+		//printf("root: %.040f\n\n", variable);
 		if(fabs(err) < errRate.f)
 			break;
 		iter_count += 1;
 	}
 exit:
-	printf("\nResult in float :                                             %.040f\n", variable);
+	clock_gettime(CLOCK_MONOTONIC, &ts_stop_compute);
+	printf("\nIteration Count :                                             %d\n", iter_count);
+	printf("Result in float :                                             %.040f\n", variable);
 	printf("Result in IEEE-754 representation float :                     %d", fPointTemp.raw.sign);
 	printBinary(fPointTemp.raw.exponent, 8);
 	printBinary(fPointTemp.raw.mantissa, 23);
 	printf("\n");
+	cpu_compute_time = (ts_stop_compute.tv_sec - ts_start_compute.tv_sec)*1000000 + (ts_stop_compute.tv_nsec - ts_start_compute.tv_nsec) / 1000;
+	printf("Time spent for computation CPU:  			      %lf usec \n\n\n",cpu_compute_time);
 
 	return 0;
 }
@@ -268,11 +279,9 @@ int main()
 {
 	printf("Floating Point Differentiator\n\n");
 	int error = 0;
-	struct timespec ts_start_compute;
-	struct timespec ts_stop_compute;
-	struct timespec ts_stop_receive_data_from_fpga;
-	double cpu_compute_time;
-	double total_cpld_time;
+	struct timespec ts_start_time;
+	double total_fpga_computition_time;
+	struct timespec ts_end_compute;
 
 	error = getFloat();
 	if(error)
@@ -281,11 +290,7 @@ int main()
 		return (1);
 	}
 
-	clock_gettime(CLOCK_MONOTONIC, &ts_start_compute);
 	error = computeDerivative();
-	clock_gettime(CLOCK_MONOTONIC, &ts_stop_compute);
-	cpu_compute_time = (ts_stop_compute.tv_sec - ts_start_compute.tv_sec)*1000000 + (ts_stop_compute.tv_nsec - ts_start_compute.tv_nsec) / 1000;
-	printf("Time spent for computation CPU:  			      %lf usec \n\n\n",cpu_compute_time);
 	if(error)
 	{
 		printf("ERROR computeDerivative! \n");
@@ -306,11 +311,11 @@ int main()
 		printf("ERROR sendToCpld! \n");
 		return (1);
 	}
-
+	clock_gettime(CLOCK_MONOTONIC, &ts_start_time);
 	error = receiveFromCpld();
-	clock_gettime(CLOCK_MONOTONIC, &ts_stop_receive_data_from_fpga);
-	total_cpld_time = (ts_stop_receive_data_from_fpga.tv_sec - ts_stop_compute.tv_sec)*1000000 + (ts_stop_receive_data_from_fpga.tv_nsec - ts_stop_compute.tv_nsec) / 1000;
-	printf("Total time required by fpga: 			              %lf usec\n",total_cpld_time);
+	clock_gettime(CLOCK_MONOTONIC, &ts_end_compute);
+	total_fpga_computition_time = (ts_end_compute.tv_sec - ts_start_time.tv_sec)*1000000 + (ts_end_compute.tv_nsec - ts_start_time.tv_nsec) / 1000;
+	printf("Total time required by fpga: 			              %lf usec\n",total_fpga_computition_time);
 	if(error)
 	{
 		printf("ERROR receiveFromFpga! \n");
