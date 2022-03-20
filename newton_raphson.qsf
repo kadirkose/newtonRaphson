@@ -80,7 +80,7 @@ set_global_assignment -name PARTITION_FITTER_PRESERVATION_LEVEL PLACEMENT_AND_RO
 set_global_assignment -name PARTITION_COLOR 16764057 -section_id Top
 set_location_assignment PIN_K26 -to UART_RXD
 set_location_assignment PIN_E26 -to UART_TXD
-set_instance_assignment -name IO_STANDARD LVDS -to clk
+set_instance_assignment -name IO_STANDARD "2.5 V" -to clk
 set_location_assignment PIN_P12 -to reset
 set_instance_assignment -name IO_STANDARD "1.2 V" -to reset
 set_location_assignment PIN_F7 -to leds[0]
@@ -93,8 +93,7 @@ set_location_assignment PIN_K10 -to leds[6]
 set_location_assignment PIN_K8 -to leds[7]
 set_location_assignment PIN_H7 -to leds[8]
 set_location_assignment PIN_J10 -to leds[9]
-set_location_assignment PIN_U12 -to clk
-set_location_assignment PIN_V12 -to "clk(n)"
+set_location_assignment PIN_H12 -to clk
 set_location_assignment PIN_L7 -to ledg[0]
 set_location_assignment PIN_K6 -to ledg[1]
 set_location_assignment PIN_D8 -to ledg[2]

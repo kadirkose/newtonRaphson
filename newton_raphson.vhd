@@ -7,7 +7,7 @@ entity newton_raphson is
 	generic(	
 		DATA_WIDTH 				: in 	natural := 32;												 	-- RAM dimensions
 		ADDR_WIDTH 				: in 	natural := 128;								
-		CLK_FREQ      			: in 	integer := 125e6;   											-- set system clock frequency in Hz
+		CLK_FREQ      			: in 	integer := 50e6;   											-- set system clock frequency in Hz
 		BAUD_RATE     			: in 	integer := 115200;   										-- baud rate value
 		PARITY_BIT    			: in 	string  := "none"; 											-- legal values: "none", "even", "odd", "mark", "space"
 		USE_DEBOUNCER 			: in 	boolean := false   											-- enable/disable debouncer		

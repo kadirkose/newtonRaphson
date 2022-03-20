@@ -8,7 +8,7 @@
 
 #define floatSize 32
 #define maxFloatNumber 32
-#define CPLD_CLOCK_FREQ 125000000
+#define FPGA_CLOCK_FREQ 50
 
 int degree_min, degree_max;
 int cpldUart;
@@ -141,7 +141,7 @@ int receiveFromCpld()
 		memcpy(&cycleCount, (unsigned int*)&rcvData, sizeof(rcvData));
 		printf("FPGA operation cycle count :                                  ");
 		printf("%u\n", cycleCount);
-		cpld_compute_time = (double)cycleCount / 125;
+		cpld_compute_time = (double)cycleCount / FPGA_CLOCK_FREQ;
 		printf("Computation time of fpga ignoring the uart communication:     ");
 		printf("%lf usec\n",cpld_compute_time);
 	}

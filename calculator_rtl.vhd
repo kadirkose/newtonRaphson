@@ -175,9 +175,9 @@ architecture logic of calculator_rtl is
 	signal variable_value_int		: std_logic_vector(31 downto 0):= (others => '0');
 	signal cnt							: integer range 0 to 100:= 0;
 	
-	constant ADDER_DELAY 		: integer := 8;
-	constant MUlTIPLIER_DELAY  : integer := 4;
-	constant DIVIDER_DELAY 		: integer := 17;
+	constant ADDER_DELAY 		: integer := 2;
+	constant MUlTIPLIER_DELAY  : integer := 2;
+	constant DIVIDER_DELAY 		: integer := 11;
 
 	type state_machine is(
 		idle,

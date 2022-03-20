@@ -68,10 +68,10 @@ end architecture rtl; -- of fp_mult
 --	needed under any third party's intellectual property, are provided herein.
 ---->
 -- Retrieval info: <instance entity-name="altera_fp_functions" version="20.1" >
--- Retrieval info: 	<generic name="FUNCTION_FAMILY" value="ARITH" />
--- Retrieval info: 	<generic name="ARITH_function" value="MUL" />
+-- Retrieval info: 	<generic name="FUNCTION_FAMILY" value="ALL" />
+-- Retrieval info: 	<generic name="ARITH_function" value="ADD" />
 -- Retrieval info: 	<generic name="CONVERT_function" value="FXP_FP" />
--- Retrieval info: 	<generic name="ALL_function" value="ADD" />
+-- Retrieval info: 	<generic name="ALL_function" value="MUL" />
 -- Retrieval info: 	<generic name="EXP_LOG_function" value="EXPE" />
 -- Retrieval info: 	<generic name="TRIG_function" value="SIN" />
 -- Retrieval info: 	<generic name="COMPARE_function" value="MIN" />
@@ -80,7 +80,7 @@ end architecture rtl; -- of fp_mult
 -- Retrieval info: 	<generic name="fp_exp" value="8" />
 -- Retrieval info: 	<generic name="fp_man" value="23" />
 -- Retrieval info: 	<generic name="exponent_width" value="23" />
--- Retrieval info: 	<generic name="frequency_target" value="125" />
+-- Retrieval info: 	<generic name="frequency_target" value="50" />
 -- Retrieval info: 	<generic name="latency_target" value="2" />
 -- Retrieval info: 	<generic name="performance_goal" value="frequency" />
 -- Retrieval info: 	<generic name="rounding_mode" value="nearest with tie breaking away from zero" />
