@@ -170,8 +170,8 @@ architecture logic of calculator_rtl is
 	signal float_substractor_in2	: std_logic_vector(31 downto 0):= (others => '0');
 	signal float_substractor_out	: std_logic_vector(31 downto 0):= (others => '0');
 	
-	signal der_subs_result			: std_logic_vector(31 downto 0):= (others => '0');
-	signal subs_result				: std_logic_vector(31 downto 0):= (others => '0');
+	signal derivative_result		: std_logic_vector(31 downto 0):= (others => '0');
+	signal polynomial_result		: std_logic_vector(31 downto 0):= (others => '0');
 	signal variable_value_int		: std_logic_vector(31 downto 0):= (others => '0');
 	signal cnt							: integer range 0 to 100:= 0;
 	
@@ -181,36 +181,36 @@ architecture logic of calculator_rtl is
 
 	type state_machine is(
 		idle,
-		initialize_derivative,		
+		derivative_coeff,		
 		wait_mult_op,		
-		mult1_op,	
+		calculate_var2,	
 		wait_mult1_op,				
-		mult2_op,			
+		calculate_var4,			
 		wait_mult2_op,			
-		mult3_op,		
+		calculate_var8,		
 		wait_mult3_op,				
-		mult4_op,
+		calculate_var16,
 		wait_mult4_op,
-		mult5_op,
+		calculate_var31,
 		wait_mult5_op,
-		derivative_multiply,
-		wait_derivative_multiply,
-		substitution_multiply,
-		wait_substitution_multiply,
-		initialize_subs_add1,
-		wait_subs_add1,
-		initialize_subs_add2,
-		wait_subs_add2,
-		initialize_subs_add3,
-		wait_subs_add3,
-		initialize_subs_add4,
-		wait_subs_add4,
-		initialize_subs_add5,
-		wait_addition_result,
-		initialize_division,
-		wait_division,
-		initialize_substractor,
-		wait_substractor,
+		evaluate_derivative,
+		wait_evaluate_derivative,
+		evaluate_polynomial,
+		wait_evaluate_polynomial,
+		add_polynomial_terms1,
+		wait_add_polynomial_terms1,
+		add_polynomial_terms2,
+		wait_add_polynomial_terms2,
+		add_polynomial_terms3,
+		wait_add_polynomial_terms3,
+		add_polynomial_terms4,
+		wait_add_polynomial_terms4,
+		add_polynomial_terms5,
+		wait_add_polynomial_terms5,
+		calculate_accuracy,
+		wait_calculate_accuracy,
+		calculate_new_variable,
+		wait_calculate_new_variable,
 		complete_operation,
 		reset_operation
 	);
@@ -1010,13 +1010,13 @@ architecture logic of calculator_rtl is
 			variable_power_array(29) <= (others => '0');
 			variable_power_array(30) <= (others => '0');
 			variable_power_array(31) <= (others => '0');
-			complete_op		 				<= '0';
-			variable_value_int					<= (others => '0');
-			calculator_result						<= (others => '0');
-			der_subs_result						<= (others => '0');
-			subs_result								<= (others => '0');
-			cnt 										<= 0;
-			state										<= idle;
+			complete_op		 			 <= '0';
+			variable_value_int		 <= (others => '0');
+			calculator_result			 <= (others => '0');
+			derivative_result			 <= (others => '0');
+			polynomial_result			 <= (others => '0');
+			cnt 							 <= 0;
+			state							 <= idle;
 		elsif(rising_edge(clk)) then
 			
 			case state is
@@ -1056,11 +1056,11 @@ architecture logic of calculator_rtl is
 						coefficient(29) 	<= coefficient29;
 						coefficient(30) 	<= coefficient30;
 						coefficient(31) 	<= coefficient31;
-						state 				<= initialize_derivative;
+						state 				<= derivative_coeff;
 						complete_op		 	<= '0';
 					end if;
 					
-				when initialize_derivative=>
+				when derivative_coeff =>
 					cnt <= 0;
 					float_mult_in1(0)  <= fp_const(degree_min);
 					float_mult_in2(0)  <= coefficient(0);						
@@ -1166,15 +1166,15 @@ architecture logic of calculator_rtl is
 						mult_degree_coef(30) <= float_mult_out(30);
 						mult_degree_coef(31) <= float_mult_out(31);
 						if(degree > 1) then
-							state <= mult1_op;
+							state <= calculate_var2;
 						else
-							state <= derivative_multiply;
+							state <= evaluate_derivative;
 						end if;
 					else
 						cnt <= cnt + 1;
 					end if;
 					
-				when mult1_op =>
+				when calculate_var2 =>
 					cnt <= 0;
 					float_mult_in1(0) <= variable_value_int(31 downto 0);
 					float_mult_in2(0) <= variable_value_int(31 downto 0);
@@ -1184,9 +1184,9 @@ architecture logic of calculator_rtl is
 					if(cnt = MULTIPLIER_DELAY) then
 						cnt <= 0;
 						if(degree > 2) then
-							state <= mult2_op;
+							state <= calculate_var4;
 						else
-							state <= derivative_multiply;
+							state <= evaluate_derivative;
 						end if;
 						variable_power_array(2)	<= float_mult_out(0);
 					else
@@ -1194,7 +1194,7 @@ architecture logic of calculator_rtl is
 					end if;
 					
 					
-				when mult2_op =>
+				when calculate_var4 =>
 					cnt <= 0;
 					float_mult_in1(0) 	<= variable_power_array(1);
 					float_mult_in2(0) 	<= variable_power_array(2);
@@ -1210,15 +1210,15 @@ architecture logic of calculator_rtl is
 							variable_power_array(4)	<= float_mult_out(1);
 						end if;
 						if(degree > 4) then
-							state <= mult3_op;
+							state <= calculate_var8;
 						else
-							state <= derivative_multiply;
+							state <= evaluate_derivative;
 						end if;
 					else
 						cnt <= cnt + 1;
 					end if;
 					
-				when mult3_op =>
+				when calculate_var8 =>
 					cnt <= 0;
 					float_mult_in1(0) 	<= variable_power_array(2);
 					float_mult_in2(0) 	<= variable_power_array(3);
@@ -1234,19 +1234,25 @@ architecture logic of calculator_rtl is
 					if(cnt = MULTIPLIER_DELAY) then
 						cnt <= 0;
 						variable_power_array(5)	<= float_mult_out(0);
-						variable_power_array(6)	<= float_mult_out(1);
-						variable_power_array(7)	<= float_mult_out(2);
-						variable_power_array(8)	<= float_mult_out(3);
+						if(degree > 5) then
+							variable_power_array(6)	<= float_mult_out(1);
+						end if;
+						if(degree > 6) then
+							variable_power_array(7)	<= float_mult_out(2);
+						end if;
+						if(degree > 7) then
+							variable_power_array(8)	<= float_mult_out(3);
+						end if;
 						if(degree > 8) then
-							state <= mult4_op;
+							state <= calculate_var16;
 						else
-							state <= derivative_multiply;
+							state <= evaluate_derivative;
 						end if;
 					else
 						cnt <= cnt + 1;
 					end if;
 					
-				when mult4_op =>
+				when calculate_var16 =>
 					cnt <= 0;
 					float_mult_in1(0) 		<= variable_power_array(4);
 					float_mult_in2(0) 		<= variable_power_array(5);
@@ -1292,15 +1298,15 @@ architecture logic of calculator_rtl is
 							variable_power_array(16)					<= float_mult_out(7);
 						end if;
 						if(degree > 16) then
-							state <= mult5_op;
+							state <= calculate_var31;
 						else
-							state <= derivative_multiply;
+							state <= evaluate_derivative;
 						end if;
 					else
 						cnt <= cnt + 1;
 					end if;
 					
-				when mult5_op =>
+				when calculate_var31 =>
 					cnt <= 0;
 					float_mult_in1(0) 		<= variable_power_array(8);
 					float_mult_in2(0) 		<= variable_power_array(9);
@@ -1380,13 +1386,13 @@ architecture logic of calculator_rtl is
 						if(degree > 30) then
 							variable_power_array(31)					<= float_mult_out(14);
 						end if;
-						state 	<= derivative_multiply;
+						state 	<= evaluate_derivative;
 					else
 						cnt <= cnt + 1;
 					end if;
 					
-				when derivative_multiply =>
-					state <= wait_derivative_multiply;
+				when evaluate_derivative =>
+					state <= wait_evaluate_derivative;
 					cnt <= 0;
 					float_mult_in1(0)  <= variable_power_array(degree_min - 1);
 					float_mult_in2(0)  <= mult_degree_coef(0);						
@@ -1453,17 +1459,17 @@ architecture logic of calculator_rtl is
 					float_mult_in1(31) <= variable_power_array(degree_min + 30);
 					float_mult_in2(31) <= mult_degree_coef(31);	
 					
-				when wait_derivative_multiply =>
+				when wait_evaluate_derivative =>
 					if(cnt = MULTIPLIER_DELAY) then
 						cnt <= 0;
-						state <= substitution_multiply;
+						state <= evaluate_polynomial;
 					else
 						cnt <= cnt + 1;
 					end if;
 					
-				when substitution_multiply =>
+				when evaluate_polynomial =>
 					cnt <= 0;
-					state <= wait_substitution_multiply;
+					state <= wait_evaluate_polynomial;
 					/* register derivative mult result */
 					derivative_mult_result(0) 	 <= float_mult_out(0);
 					derivative_mult_result(1) 	 <= float_mult_out(1);
@@ -1564,15 +1570,15 @@ architecture logic of calculator_rtl is
 					float_mult_in2(31) <= coefficient(31);
 					
 		
-				when wait_substitution_multiply =>
+				when wait_evaluate_polynomial =>
 					if(cnt = MULTIPLIER_DELAY) then
 						cnt <= 0;
-						state <= initialize_subs_add1;
+						state <= add_polynomial_terms1;
 					else
 						cnt <= cnt + 1;
 					end if;
 					
-				when initialize_subs_add1 =>
+				when add_polynomial_terms1 =>
 					cnt <= 0;
 					float_add_in1(0)	<= derivative_mult_result(0);
 					float_add_in2(0)	<= derivative_mult_result(1);
@@ -1638,17 +1644,17 @@ architecture logic of calculator_rtl is
 					float_add_in2(30)	<= float_mult_out(29);
 					float_add_in1(31)	<= float_mult_out(30);
 					float_add_in2(31)	<= float_mult_out(31);
-					state <= wait_subs_add1;
+					state <= wait_add_polynomial_terms1;
 				
-				when wait_subs_add1 =>
+				when wait_add_polynomial_terms1 =>
 					if(cnt = ADDER_DELAY) then
 						cnt <= 0;
-						state <= initialize_subs_add2;
+						state <= add_polynomial_terms2;
 					else
 						cnt <= cnt + 1;
 					end if;
 				
-				when initialize_subs_add2 =>
+				when add_polynomial_terms2 =>
 					cnt <= 0;
 					float_add_in1(0)	<= float_add_out(0);
 					float_add_in2(0)	<= float_add_out(1);
@@ -1682,17 +1688,17 @@ architecture logic of calculator_rtl is
 					float_add_in2(14)	<= float_add_out(29);
 					float_add_in1(15)	<= float_add_out(30);
 					float_add_in2(15)	<= float_add_out(31);
-					state <= wait_subs_add2;
+					state <= wait_add_polynomial_terms2;
 				
-				when wait_subs_add2 =>
+				when wait_add_polynomial_terms2 =>
 					if(cnt = ADDER_DELAY) then
 						cnt <= 0;
-						state <= initialize_subs_add3;
+						state <= add_polynomial_terms3;
 					else
 						cnt <= cnt + 1;
 					end if;
 					
-				when initialize_subs_add3 =>
+				when add_polynomial_terms3 =>
 					cnt <= 0;
 					float_add_in1(0)	<= float_add_out(0);
 					float_add_in2(0)	<= float_add_out(1);
@@ -1710,19 +1716,19 @@ architecture logic of calculator_rtl is
 					float_add_in2(6)	<= float_add_out(13);
 					float_add_in1(7)	<= float_add_out(14);
 					float_add_in2(7)	<= float_add_out(15);
-					state <= wait_subs_add3;
+					state <= wait_add_polynomial_terms3;
 					
 				
-				when wait_subs_add3 =>
+				when wait_add_polynomial_terms3 =>
 					if(cnt = ADDER_DELAY) then
 						cnt <= 0;
-						state <= initialize_subs_add4;
+						state <= add_polynomial_terms4;
 					else
 						cnt <= cnt + 1;
 					end if;
 					
 					
-				when initialize_subs_add4 =>
+				when add_polynomial_terms4 =>
 					cnt <= 0;
 					float_add_in1(0)	<= float_add_out(0);
 					float_add_in2(0)	<= float_add_out(1);
@@ -1732,63 +1738,63 @@ architecture logic of calculator_rtl is
 					float_add_in2(2)	<= float_add_out(5);
 					float_add_in1(3)	<= float_add_out(6);
 					float_add_in2(3)	<= float_add_out(7);
-					state <= wait_subs_add4;
+					state <= wait_add_polynomial_terms4;
 		
 				
-				when wait_subs_add4 =>
+				when wait_add_polynomial_terms4 =>
 					if(cnt = ADDER_DELAY) then
 						cnt <= 0;
-						state <= initialize_subs_add5;
+						state <= add_polynomial_terms5;
 					else
 						cnt <= cnt + 1;
 					end if;
 					
 					
-				when initialize_subs_add5 =>
+				when add_polynomial_terms5 =>
 					cnt <= 0;
 					float_add_in1(0)	<= float_add_out(0);
 					float_add_in2(0)	<= float_add_out(1);	
 					float_add_in1(1)	<= float_add_out(2);
 					float_add_in2(1)	<= float_add_out(3);	
-					state <= wait_addition_result;
+					state <= wait_add_polynomial_terms5;
 				
-				when wait_addition_result =>
+				when wait_add_polynomial_terms5 =>
 					if(cnt = ADDER_DELAY) then
 						cnt <= 0;
-						der_subs_result <= float_add_out(0);
-						subs_result <= float_add_out(1);
-						state <= initialize_division;
+						derivative_result <= float_add_out(0);
+						polynomial_result <= float_add_out(1);
+						state <= calculate_accuracy;
 					else
 						cnt <= cnt + 1;
 					end if;
 					
-				when initialize_division =>
+				when calculate_accuracy =>
 					cnt <= 0;
-					if(der_subs_result = "00000000000000000000000000000000") then
-						state <= initialize_substractor;
+					if(derivative_result = "00000000000000000000000000000000") then
+						state <= calculate_new_variable;
 						accuracy <= (others => '0');
 					else
-						float_div_in1 <= subs_result;
-						float_div_in2 <= der_subs_result;
-						state <= wait_division;
+						float_div_in1 <= polynomial_result;
+						float_div_in2 <= derivative_result;
+						state <= wait_calculate_accuracy;
 					end if;
 					
-				when wait_division =>
+				when wait_calculate_accuracy =>
 					if(cnt = DIVIDER_DELAY) then
 						cnt <= 0;
-						state 	<= initialize_substractor;	
+						state 	<= calculate_new_variable;	
 						accuracy <= float_div_out;
 					else
 						cnt <= cnt + 1;
 					end if;
 					
-				when initialize_substractor =>
+				when calculate_new_variable =>
 					cnt <= 0;
 					float_substractor_in2 	<= accuracy;
 					float_substractor_in1 	<= variable_value_int;
-					state <= wait_substractor;
+					state <= wait_calculate_new_variable;
 				
-				when wait_substractor =>
+				when wait_calculate_new_variable =>
 					if(cnt = ADDER_DELAY) then
 						cnt <= 0;
 						state <= complete_operation;
