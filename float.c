@@ -96,14 +96,18 @@ int sendToCpld()
 	int degreeCount, bitCount;
 	char degree_min_pos;
 	char data;
+	char deg_min, deg_max;
 
 	if(degree_min < 0)
 		degree_min_pos= -1*degree_min;
 	else
 		degree_min_pos= 0;
 
-	write(cpldUart, &degree_min_pos, 1);
-	write(cpldUart, (char*)&degree_max, 1);
+	deg_max = degree_min_pos + degree_max;
+	deg_min = 0;
+
+	write(cpldUart, &deg_min, 1);
+	write(cpldUart, (char*)&deg_max, 1);
 	write(cpldUart, &fPointTemp.bit_vector, 4);
 	write(cpldUart, &errRate.bit_vector, 4);
 	write(cpldUart, &iteration_count, 4);
@@ -204,8 +208,12 @@ int computeDerivative()
 				derSubsResult+= (fPoint[degreeCount].f * (degreeCount+degree_min)) * (pow(variable, (degreeCount+degree_min-1)));
 		}
 		//printf("%d. iteration\n",iter_count+1);
-		if(subsResult == 0 || derSubsResult == 0)
+		if(derSubsResult == 0)
+		{
+			printf("Process is stopped because derSubsResult is zero. subsResult/0 is nan. iteratin: %d, root :%f \n", iter_count, variable);
 			goto exit;
+		}
+			
 
 		err = subsResult / derSubsResult;
 		//printf("subs: %.040f  derivative subs: %.040f  error: %.040f\n", subsResult, derSubsResult, err);
