@@ -163,6 +163,13 @@ architecture logic of calculator_rtl is
 	signal float_mult_in1, float_mult_in2, float_mult_out, mult_degree_coef, derivative_mult_result : float32:= (others => "00000000000000000000000000000000");
 	signal variable_power_array : float32:= (others => "00000000000000000000000000000000");
 	
+	type float64 is array(63 downto 0) of std_logic_vector(31 downto 0);
+	signal temp_add : float64:= (others => "00000000000000000000000000000000");
+	signal add_reg : std_logic_vector(63 downto 0):= (others => '0');
+	
+	type int_arr is array(63 downto 0) of integer range 0 to 64;
+	signal add_index : int_arr:= (others => 0);
+	
 	signal float_div_in1, float_div_in2, float_div_out : std_logic_vector(31 downto 0):= (others => '0');
 	signal float_add_in1, float_add_in2, float_add_out: float32:= (others => "00000000000000000000000000000000");
 	signal coefficient : float32:= (others => "00000000000000000000000000000000");
@@ -197,6 +204,8 @@ architecture logic of calculator_rtl is
 		wait_evaluate_derivative,
 		evaluate_polynomial,
 		wait_evaluate_polynomial,
+		add_polynomial_terms_init1,
+		add_polynomial_terms_init2,
 		add_polynomial_terms1,
 		wait_add_polynomial_terms1,
 		add_polynomial_terms2,
@@ -813,7 +822,8 @@ architecture logic of calculator_rtl is
 		q      => float_mult_out(31)
 	);
 		
-	process(clk, reset)
+	process(all)
+		variable add_cnt : integer range 0 to 64;
 	begin
 		if(reset = '0') then
 			float_add_in1(0)  		<= (others => '0');
@@ -1573,78 +1583,663 @@ architecture logic of calculator_rtl is
 				when wait_evaluate_polynomial =>
 					if(cnt = MULTIPLIER_DELAY) then
 						cnt <= 0;
-						state <= add_polynomial_terms1;
+						state <= add_polynomial_terms_init1;
 					else
 						cnt <= cnt + 1;
 					end if;
 					
-				when add_polynomial_terms1 =>
+					
+				when add_polynomial_terms_init1 =>
 					cnt <= 0;
-					float_add_in1(0)	<= derivative_mult_result(0);
-					float_add_in2(0)	<= derivative_mult_result(1);
-					float_add_in1(1)	<= derivative_mult_result(2);
-					float_add_in2(1)	<= derivative_mult_result(3);
-					float_add_in1(2)	<= derivative_mult_result(4);
-					float_add_in2(2)	<= derivative_mult_result(5);
-					float_add_in1(3)	<= derivative_mult_result(6);
-					float_add_in2(3)	<= derivative_mult_result(7);
-					float_add_in1(4)	<= derivative_mult_result(8);
-					float_add_in2(4)	<= derivative_mult_result(9);
-					float_add_in1(5)	<= derivative_mult_result(10);
-					float_add_in2(5)	<= derivative_mult_result(11);
-					float_add_in1(6)	<= derivative_mult_result(12);
-					float_add_in2(6)	<= derivative_mult_result(13);
-					float_add_in1(7)	<= derivative_mult_result(14);
-					float_add_in2(7)	<= derivative_mult_result(15);
-					float_add_in1(8)	<= derivative_mult_result(16);
-					float_add_in2(8)	<= derivative_mult_result(17);
-					float_add_in1(9)	<= derivative_mult_result(18);
-					float_add_in2(9)	<= derivative_mult_result(19);
-					float_add_in1(10)	<= derivative_mult_result(20);
-					float_add_in2(10)	<= derivative_mult_result(21);
-					float_add_in1(11)	<= derivative_mult_result(22);
-					float_add_in2(11)	<= derivative_mult_result(23);
-					float_add_in1(12)	<= derivative_mult_result(24);
-					float_add_in2(12)	<= derivative_mult_result(25);
-					float_add_in1(13)	<= derivative_mult_result(26);
-					float_add_in2(13)	<= derivative_mult_result(27);
-					float_add_in1(14)	<= derivative_mult_result(28);
-					float_add_in2(14)	<= derivative_mult_result(29);
-					float_add_in1(15)	<= derivative_mult_result(30);
-					float_add_in2(15)	<= derivative_mult_result(31);
-					float_add_in1(16)	<= float_mult_out(0);
-					float_add_in2(16)	<= float_mult_out(1);
-					float_add_in1(17)	<= float_mult_out(2);
-					float_add_in2(17)	<= float_mult_out(3);
-					float_add_in1(18)	<= float_mult_out(4);
-					float_add_in2(18)	<= float_mult_out(5);
-					float_add_in1(19)	<= float_mult_out(6);
-					float_add_in2(19)	<= float_mult_out(7);
-					float_add_in1(20)	<= float_mult_out(8);
-					float_add_in2(20)	<= float_mult_out(9);
-					float_add_in1(21)	<= float_mult_out(10);
-					float_add_in2(21)	<= float_mult_out(11);
-					float_add_in1(22)	<= float_mult_out(12);
-					float_add_in2(22)	<= float_mult_out(13);
-					float_add_in1(23)	<= float_mult_out(14);
-					float_add_in2(23)	<= float_mult_out(15);
-					float_add_in1(24)	<= float_mult_out(16);
-					float_add_in2(24)	<= float_mult_out(17);
-					float_add_in1(25)	<= float_mult_out(18);
-					float_add_in2(25)	<= float_mult_out(19);
-					float_add_in1(26)	<= float_mult_out(20);
-					float_add_in2(26)	<= float_mult_out(21);
-					float_add_in1(27)	<= float_mult_out(22);
-					float_add_in2(27)	<= float_mult_out(23);
-					float_add_in1(28)	<= float_mult_out(24);
-					float_add_in2(28)	<= float_mult_out(25);
-					float_add_in1(29)	<= float_mult_out(26);
-					float_add_in2(29)	<= float_mult_out(27);
-					float_add_in1(30)	<= float_mult_out(28);
-					float_add_in2(30)	<= float_mult_out(29);
-					float_add_in1(31)	<= float_mult_out(30);
-					float_add_in2(31)	<= float_mult_out(31);
+					add_cnt := 0;
+					if(temp_add(0) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 0;
+						add_cnt := add_cnt + 1;
+						add_reg(0) <= '1';
+					end if;	
+					if(temp_add(1) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 1;
+						add_cnt := add_cnt + 1;
+						add_reg(1) <= '1';
+					end if;
+					if(temp_add(2) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 2;
+						add_cnt := add_cnt + 1;
+						add_reg(2) <= '1';
+					end if;
+					if(temp_add(3) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 3;
+						add_cnt := add_cnt + 1;
+						add_reg(3) <= '1';
+					end if;
+					if(temp_add(4) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 4;
+						add_cnt := add_cnt + 1;
+						add_reg(4) <= '1';
+					end if;
+					if(temp_add(5) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 5;
+						add_cnt := add_cnt + 1;
+						add_reg(5) <= '1';
+					end if;	
+					if(temp_add(6) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 6;
+						add_cnt := add_cnt + 1;
+						add_reg(6) <= '1';
+					end if;	
+					if(temp_add(7) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 7;
+						add_cnt := add_cnt + 1;
+						add_reg(7) <= '1';
+					end if;	
+					if(temp_add(8) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 8;
+						add_cnt := add_cnt + 1;
+						add_reg(8) <= '1';
+					end if;
+					if(temp_add(9) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 9;
+						add_cnt := add_cnt + 1;
+						add_reg(9) <= '1';
+					end if;
+					if(temp_add(10) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 10;
+						add_cnt := add_cnt + 1;
+						add_reg(10) <= '1';
+					end if;
+					if(temp_add(11) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 11;
+						add_cnt := add_cnt + 1;
+						add_reg(11) <= '1';
+					end if;
+					if(temp_add(12) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 12;
+						add_cnt := add_cnt + 1;
+						add_reg(12) <= '1';
+					end if;
+					if(temp_add(13) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 13;
+						add_cnt := add_cnt + 1;
+						add_reg(13) <= '1';
+					end if;
+					if(temp_add(14) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 14;
+						add_cnt := add_cnt + 1;
+						add_reg(14) <= '1';
+					end if;
+					if(temp_add(15) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 15;
+						add_cnt := add_cnt + 1;
+						add_reg(15) <= '1';
+					end if;
+					if(temp_add(16) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 16;
+						add_cnt := add_cnt + 1;
+						add_reg(16) <= '1';
+					end if;
+					if(temp_add(17) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 17;
+						add_cnt := add_cnt + 1;
+						add_reg(17) <= '1';
+					end if;
+					if(temp_add(18) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 18;
+						add_cnt := add_cnt + 1;
+						add_reg(18) <= '1';
+					end if;
+					if(temp_add(19) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 19;
+						add_cnt := add_cnt + 1;
+						add_reg(19) <= '1';
+					end if;
+					if(temp_add(20) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 20;
+						add_cnt := add_cnt + 1;
+						add_reg(20) <= '1';
+					end if;
+					if(temp_add(21) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 21;
+						add_cnt := add_cnt + 1;
+						add_reg(21) <= '1';
+					end if;
+					if(temp_add(22) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 22;
+						add_cnt := add_cnt + 1;
+						add_reg(22) <= '1';
+					end if;
+					if(temp_add(23) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 23;
+						add_cnt := add_cnt + 1;
+						add_reg(23) <= '1';
+					end if;
+					if(temp_add(24) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 24;
+						add_cnt := add_cnt + 1;
+						add_reg(24) <= '1';
+					end if;
+					if(temp_add(25) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 25;
+						add_cnt := add_cnt + 1;
+						add_reg(25) <= '1';
+					end if;
+					if(temp_add(26) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 26;
+						add_cnt := add_cnt + 1;
+						add_reg(26) <= '1';
+					end if;
+					if(temp_add(27) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 27;
+						add_cnt := add_cnt + 1;
+						add_reg(27) <= '1';
+					end if;
+					if(temp_add(28) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 28;
+						add_cnt := add_cnt + 1;
+						add_reg(28) <= '1';
+					end if;
+					if(temp_add(29) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 29;
+						add_cnt := add_cnt + 1;
+						add_reg(29) <= '1';
+					end if;
+					if(temp_add(30) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 30;
+						add_cnt := add_cnt + 1;
+						add_reg(30) <= '1';
+					end if;
+					if(temp_add(31) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 31;
+						add_cnt := add_cnt + 1;
+						add_reg(31) <= '1';
+					end if;
+					if(temp_add(32) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 32;
+						add_cnt := add_cnt + 1;
+						add_reg(32) <= '1';
+					end if;
+					if(temp_add(33) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 33;
+						add_cnt := add_cnt + 1;
+						add_reg(33) <= '1';
+					end if;
+					if(temp_add(34) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 34;
+						add_cnt := add_cnt + 1;
+						add_reg(34) <= '1';
+					end if;
+					if(temp_add(35) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 35;
+						add_cnt := add_cnt + 1;
+						add_reg(35) <= '1';
+					end if;
+					if(temp_add(36) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 36;
+						add_cnt := add_cnt + 1;
+						add_reg(36) <= '1';
+					end if;
+					if(temp_add(37) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 37;
+						add_cnt := add_cnt + 1;
+						add_reg(37) <= '1';
+					end if;
+					if(temp_add(38) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 38;
+						add_cnt := add_cnt + 1;
+						add_reg(38) <= '1';
+					end if;
+					if(temp_add(39) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 39;
+						add_cnt := add_cnt + 1;
+						add_reg(39) <= '1';
+					end if;
+					if(temp_add(40) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 40;
+						add_cnt := add_cnt + 1;
+						add_reg(40) <= '1';
+					end if;
+					if(temp_add(41) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 41;
+						add_cnt := add_cnt + 1;
+						add_reg(41) <= '1';
+					end if;
+					if(temp_add(42) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 42;
+						add_cnt := add_cnt + 1;
+						add_reg(42) <= '1';
+					end if;
+					if(temp_add(43) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 43;
+						add_cnt := add_cnt + 1;
+						add_reg(43) <= '1';
+					end if;
+					if(temp_add(44) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 44;
+						add_cnt := add_cnt + 1;
+						add_reg(44) <= '1';
+					end if;
+					if(temp_add(45) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 45;
+						add_cnt := add_cnt + 1;
+						add_reg(45) <= '1';
+					end if;
+					if(temp_add(46) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 46;
+						add_cnt := add_cnt + 1;
+						add_reg(46) <= '1';
+					end if;
+					if(temp_add(47) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 47;
+						add_cnt := add_cnt + 1;
+						add_reg(47) <= '1';
+					end if;
+					if(temp_add(48) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 48;
+						add_cnt := add_cnt + 1;
+						add_reg(48) <= '1';
+					end if;
+					if(temp_add(49) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 49;
+						add_cnt := add_cnt + 1;
+						add_reg(49) <= '1';
+					end if;
+					if(temp_add(50) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 50;
+						add_cnt := add_cnt + 1;
+						add_reg(50) <= '1';
+					end if;
+					if(temp_add(51) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 51;
+						add_cnt := add_cnt + 1;
+						add_reg(51) <= '1';
+					end if;
+					if(temp_add(52) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 52;
+						add_cnt := add_cnt + 1;
+						add_reg(52) <= '1';
+					end if;
+					if(temp_add(53) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 53;
+						add_cnt := add_cnt + 1;
+						add_reg(53) <= '1';
+					end if;
+					if(temp_add(54) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 54;
+						add_cnt := add_cnt + 1;
+						add_reg(54) <= '1';
+					end if;
+					if(temp_add(55) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 55;
+						add_cnt := add_cnt + 1;
+						add_reg(55) <= '1';
+					end if;
+					if(temp_add(56) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 56;
+						add_cnt := add_cnt + 1;
+						add_reg(56) <= '1';
+					end if;
+					if(temp_add(57) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 57;
+						add_cnt := add_cnt + 1;
+						add_reg(57) <= '1';
+					end if;
+					if(temp_add(58) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 58;
+						add_cnt := add_cnt + 1;
+						add_reg(58) <= '1';
+					end if;
+					if(temp_add(59) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 59;
+						add_cnt := add_cnt + 1;
+						add_reg(59) <= '1';
+					end if;
+					if(temp_add(60) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 60;
+						add_cnt := add_cnt + 1;
+						add_reg(60) <= '1';
+					end if;
+					if(temp_add(61) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 61;
+						add_cnt := add_cnt + 1;
+						add_reg(61) <= '1';
+					end if;
+					if(temp_add(62) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 62;
+						add_cnt := add_cnt + 1;
+						add_reg(62) <= '1';
+					end if;
+					if(temp_add(63) /= "00000000000000000000000000000000") then
+						add_index(add_cnt) <= 63;
+						add_cnt := add_cnt + 1;
+						add_reg(63) <= '1';
+					end if;
+					state <= add_polynomial_terms_init2;
+					
+				when add_polynomial_terms_init2 =>
+					if(add_cnt /= 0 and add_index(0) /= 0) then
+						float_add_in1(0) <= temp_add(add_index(0));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(1) /= 0) then
+						float_add_in2(0) <= temp_add(add_index(1));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(2) /= 0) then
+						float_add_in1(1) <= temp_add(add_index(2));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(3) /= 0) then
+						float_add_in2(1) <= temp_add(add_index(3));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(4) /= 0) then
+						float_add_in1(2) <= temp_add(add_index(4));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(5) /= 0) then
+						float_add_in2(2) <= temp_add(add_index(5));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(6) /= 0) then
+						float_add_in1(3) <= temp_add(add_index(6));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(7) /= 0) then
+						float_add_in2(3) <= temp_add(add_index(7));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(8) /= 0) then
+						float_add_in1(4) <= temp_add(add_index(8));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(9) /= 0) then
+						float_add_in2(4) <= temp_add(add_index(9));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(10) /= 0) then
+						float_add_in1(5) <= temp_add(add_index(10));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(11) /= 0) then
+						float_add_in2(5) <= temp_add(add_index(11));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(12) /= 0) then
+						float_add_in1(6) <= temp_add(add_index(12));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(13) /= 0) then
+						float_add_in2(6) <= temp_add(add_index(13));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(14) /= 0) then
+						float_add_in1(7) <= temp_add(add_index(14));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(15) /= 0) then
+						float_add_in2(7) <= temp_add(add_index(15));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(16) /= 0) then
+						float_add_in1(8) <= temp_add(add_index(16));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(17) /= 0) then
+						float_add_in2(8) <= temp_add(add_index(17));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(18) /= 0) then
+						float_add_in1(9) <= temp_add(add_index(18));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(19) /= 0) then
+						float_add_in2(9) <= temp_add(add_index(19));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(20) /= 0) then
+						float_add_in1(10) <= temp_add(add_index(20));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(21) /= 0) then
+						float_add_in2(10) <= temp_add(add_index(21));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(22) /= 0) then
+						float_add_in1(11) <= temp_add(add_index(22));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(23) /= 0) then
+						float_add_in2(11) <= temp_add(add_index(23));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(24) /= 0) then
+						float_add_in1(12) <= temp_add(add_index(24));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(25) /= 0) then
+						float_add_in2(12) <= temp_add(add_index(25));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(26) /= 0) then
+						float_add_in1(13) <= temp_add(add_index(26));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(27) /= 0) then
+						float_add_in2(13) <= temp_add(add_index(27));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(28) /= 0) then
+						float_add_in1(14) <= temp_add(add_index(28));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(29) /= 0) then
+						float_add_in2(14) <= temp_add(add_index(29));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(30) /= 0) then
+						float_add_in1(15) <= temp_add(add_index(30));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(31) /= 0) then
+						float_add_in2(15) <= temp_add(add_index(31));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(32) /= 0) then
+						float_add_in1(16) <= temp_add(add_index(32));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(33) /= 0) then
+						float_add_in2(16) <= temp_add(add_index(33));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(34) /= 0) then
+						float_add_in1(17) <= temp_add(add_index(34));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(35) /= 0) then
+						float_add_in2(17) <= temp_add(add_index(35));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(36) /= 0) then
+						float_add_in1(18) <= temp_add(add_index(36));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(37) /= 0) then
+						float_add_in2(18) <= temp_add(add_index(37));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(38) /= 0) then
+						float_add_in1(19) <= temp_add(add_index(38));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(39) /= 0) then
+						float_add_in2(19) <= temp_add(add_index(39));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(40) /= 0) then
+						float_add_in1(20) <= temp_add(add_index(40));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(41) /= 0) then
+						float_add_in2(20) <= temp_add(add_index(41));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(42) /= 0) then
+						float_add_in1(21) <= temp_add(add_index(42));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(43) /= 0) then
+						float_add_in2(21) <= temp_add(add_index(43));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(44) /= 0) then
+						float_add_in1(22) <= temp_add(add_index(44));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(45) /= 0) then
+						float_add_in2(22) <= temp_add(add_index(45));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(46) /= 0) then
+						float_add_in1(23) <= temp_add(add_index(46));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(47) /= 0) then
+						float_add_in2(23) <= temp_add(add_index(47));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(48) /= 0) then
+						float_add_in1(24) <= temp_add(add_index(48));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(49) /= 0) then
+						float_add_in2(24) <= temp_add(add_index(49));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(50) /= 0) then
+						float_add_in1(25) <= temp_add(add_index(50));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(51) /= 0) then
+						float_add_in2(25) <= temp_add(add_index(51));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(52) /= 0) then
+						float_add_in1(26) <= temp_add(add_index(52));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(53) /= 0) then
+						float_add_in2(26) <= temp_add(add_index(53));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(54) /= 0) then
+						float_add_in1(27) <= temp_add(add_index(54));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(55) /= 0) then
+						float_add_in2(27) <= temp_add(add_index(55));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(56) /= 0) then
+						float_add_in1(28) <= temp_add(add_index(56));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(57) /= 0) then
+						float_add_in2(28) <= temp_add(add_index(57));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(58) /= 0) then
+						float_add_in1(29) <= temp_add(add_index(58));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(59) /= 0) then
+						float_add_in2(29) <= temp_add(add_index(59));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(60) /= 0) then
+						float_add_in1(30) <= temp_add(add_index(60));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(61) /= 0) then
+						float_add_in2(30) <= temp_add(add_index(61));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(62) /= 0) then
+						float_add_in1(31) <= temp_add(add_index(62));
+						add_cnt := add_cnt - 1;
+					end if;
+					if(add_cnt /= 0 and add_index(63) /= 0) then
+						float_add_in2(31) <= temp_add(add_index(63));
+						add_cnt := add_cnt - 1;
+					end if;
 					state <= wait_add_polynomial_terms1;
+					
+				when add_polynomial_terms1 =>
+--					cnt <= 0;
+--					float_add_in1(0)	<= derivative_mult_result(0);
+--					float_add_in2(0)	<= derivative_mult_result(1);
+--					float_add_in1(1)	<= derivative_mult_result(2);
+--					float_add_in2(1)	<= derivative_mult_result(3);
+--					float_add_in1(2)	<= derivative_mult_result(4);
+--					float_add_in2(2)	<= derivative_mult_result(5);
+--					float_add_in1(3)	<= derivative_mult_result(6);
+--					float_add_in2(3)	<= derivative_mult_result(7);
+--					float_add_in1(4)	<= derivative_mult_result(8);
+--					float_add_in2(4)	<= derivative_mult_result(9);
+--					float_add_in1(5)	<= derivative_mult_result(10);
+--					float_add_in2(5)	<= derivative_mult_result(11);
+--					float_add_in1(6)	<= derivative_mult_result(12);
+--					float_add_in2(6)	<= derivative_mult_result(13);
+--					float_add_in1(7)	<= derivative_mult_result(14);
+--					float_add_in2(7)	<= derivative_mult_result(15);
+--					float_add_in1(8)	<= derivative_mult_result(16);
+--					float_add_in2(8)	<= derivative_mult_result(17);
+--					float_add_in1(9)	<= derivative_mult_result(18);
+--					float_add_in2(9)	<= derivative_mult_result(19);
+--					float_add_in1(10)	<= derivative_mult_result(20);
+--					float_add_in2(10)	<= derivative_mult_result(21);
+--					float_add_in1(11)	<= derivative_mult_result(22);
+--					float_add_in2(11)	<= derivative_mult_result(23);
+--					float_add_in1(12)	<= derivative_mult_result(24);
+--					float_add_in2(12)	<= derivative_mult_result(25);
+--					float_add_in1(13)	<= derivative_mult_result(26);
+--					float_add_in2(13)	<= derivative_mult_result(27);
+--					float_add_in1(14)	<= derivative_mult_result(28);
+--					float_add_in2(14)	<= derivative_mult_result(29);
+--					float_add_in1(15)	<= derivative_mult_result(30);
+--					float_add_in2(15)	<= derivative_mult_result(31);
+--					float_add_in1(16)	<= float_mult_out(0);
+--					float_add_in2(16)	<= float_mult_out(1);
+--					float_add_in1(17)	<= float_mult_out(2);
+--					float_add_in2(17)	<= float_mult_out(3);
+--					float_add_in1(18)	<= float_mult_out(4);
+--					float_add_in2(18)	<= float_mult_out(5);
+--					float_add_in1(19)	<= float_mult_out(6);
+--					float_add_in2(19)	<= float_mult_out(7);
+--					float_add_in1(20)	<= float_mult_out(8);
+--					float_add_in2(20)	<= float_mult_out(9);
+--					float_add_in1(21)	<= float_mult_out(10);
+--					float_add_in2(21)	<= float_mult_out(11);
+--					float_add_in1(22)	<= float_mult_out(12);
+--					float_add_in2(22)	<= float_mult_out(13);
+--					float_add_in1(23)	<= float_mult_out(14);
+--					float_add_in2(23)	<= float_mult_out(15);
+--					float_add_in1(24)	<= float_mult_out(16);
+--					float_add_in2(24)	<= float_mult_out(17);
+--					float_add_in1(25)	<= float_mult_out(18);
+--					float_add_in2(25)	<= float_mult_out(19);
+--					float_add_in1(26)	<= float_mult_out(20);
+--					float_add_in2(26)	<= float_mult_out(21);
+--					float_add_in1(27)	<= float_mult_out(22);
+--					float_add_in2(27)	<= float_mult_out(23);
+--					float_add_in1(28)	<= float_mult_out(24);
+--					float_add_in2(28)	<= float_mult_out(25);
+--					float_add_in1(29)	<= float_mult_out(26);
+--					float_add_in2(29)	<= float_mult_out(27);
+--					float_add_in1(30)	<= float_mult_out(28);
+--					float_add_in2(30)	<= float_mult_out(29);
+--					float_add_in1(31)	<= float_mult_out(30);
+--					float_add_in2(31)	<= float_mult_out(31);
+--					state <= wait_add_polynomial_terms1;
 				
 				when wait_add_polynomial_terms1 =>
 					if(cnt = ADDER_DELAY) then
