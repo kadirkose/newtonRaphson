@@ -30,6 +30,7 @@ architecture logic of newton_raphson is
 			clk								: in 	std_logic;
 			reset								: in 	std_logic;
 			start_op							: in 	std_logic;
+			first_iteration				: in 	std_logic;
 			degree							: in 	integer;
 			degree_min						: in 	integer;
 			variable_value					: in	std_logic_vector(31 downto 0):= (others => '0');
@@ -123,6 +124,7 @@ architecture logic of newton_raphson is
 	signal degree_min, degree_max, degree	: integer:= 0;
 	
 	signal start_opr							: std_logic:= '0';
+	signal first_iteration					: std_logic:= '0';
 	signal complete_op		: std_logic:= '0';
 	signal calculator_result				: std_logic_vector(31 downto 0);
 	
@@ -160,48 +162,49 @@ architecture logic of newton_raphson is
 	
 	calculator_block: calculator_rtl
 	port map(
-		ledg => ledg,
-		clk								=> clk,
-		reset								=> reset,
-		start_op							=> start_opr,
-		degree							=> degree,
-		degree_min						=> degree_min,
-		variable_value					=> variable_value,
-		calculator_result						=> calculator_result,
-		accuracy						=> accuracy,
-		complete_op							=> complete_op,
-		coefficient0        				=> coefficient(0),  
-		coefficient1        				=> coefficient(1),    
-		coefficient2        				=> coefficient(2),    
-		coefficient3        				=> coefficient(3),    
-		coefficient4        				=> coefficient(4),    
-		coefficient5        				=> coefficient(5),     
-		coefficient6        				=> coefficient(6),    
-		coefficient7        				=> coefficient(7),    
-		coefficient8        				=> coefficient(8),    
-		coefficient9        				=> coefficient(9),    
-		coefficient10						=> coefficient(10),	
-		coefficient11       				=> coefficient(11),   
-		coefficient12       				=> coefficient(12),   
-		coefficient13       				=> coefficient(13),   
-		coefficient14       				=> coefficient(14),   
-		coefficient15       				=> coefficient(15),   
-		coefficient16       				=> coefficient(16),   
-		coefficient17       				=> coefficient(17),   
-		coefficient18       				=> coefficient(18),   
-		coefficient19       				=> coefficient(19),   
-		coefficient20       				=> coefficient(20),   
-		coefficient21       				=> coefficient(21),   
-		coefficient22       				=> coefficient(22),   
-		coefficient23       				=> coefficient(23),   
-		coefficient24       				=> coefficient(24),   
-		coefficient25       				=> coefficient(25),   
-		coefficient26       				=> coefficient(26),   
-		coefficient27       				=> coefficient(27),   
-		coefficient28       				=> coefficient(28),   
-		coefficient29       				=> coefficient(29),   
-		coefficient30       				=> coefficient(30),   
-		coefficient31       				=> coefficient(31)
+		ledg 					=> ledg,
+		clk					=> clk,
+		reset					=> reset,
+		start_op				=> start_opr,
+		first_iteration	=> first_iteration,
+		degree				=> degree,
+		degree_min			=> degree_min,
+		variable_value		=> variable_value,
+		calculator_result	=> calculator_result,
+		accuracy				=> accuracy,
+		complete_op			=> complete_op,
+		coefficient0      => coefficient(0),  
+		coefficient1      => coefficient(1),    
+		coefficient2      => coefficient(2),    
+		coefficient3      => coefficient(3),    
+		coefficient4      => coefficient(4),    
+		coefficient5      => coefficient(5),     
+		coefficient6      => coefficient(6),    
+		coefficient7      => coefficient(7),    
+		coefficient8      => coefficient(8),    
+		coefficient9      => coefficient(9),    
+		coefficient10		=> coefficient(10),	
+		coefficient11     => coefficient(11),   
+		coefficient12     => coefficient(12),   
+		coefficient13     => coefficient(13),   
+		coefficient14     => coefficient(14),   
+		coefficient15     => coefficient(15),   
+		coefficient16     => coefficient(16),   
+		coefficient17     => coefficient(17),   
+		coefficient18     => coefficient(18),   
+		coefficient19     => coefficient(19),   
+		coefficient20     => coefficient(20),   
+		coefficient21     => coefficient(21),   
+		coefficient22     => coefficient(22),   
+		coefficient23     => coefficient(23),   
+		coefficient24     => coefficient(24),   
+		coefficient25     => coefficient(25),   
+		coefficient26     => coefficient(26),   
+		coefficient27     => coefficient(27),   
+		coefficient28     => coefficient(28),   
+		coefficient29     => coefficient(29),   
+		coefficient30     => coefficient(30),   
+		coefficient31     => coefficient(31)
 	);
 	
 	uart_block: uart
@@ -343,6 +346,7 @@ architecture logic of newton_raphson is
 					interation_limit			<= (others => '0');
 					float_comp_in1				<= (others => '0');
 					start_opr	<= '0';
+					first_iteration <= '1';
 					if(u_valid_out = '1') then																-- if data came from UART
 						state 	<= get_min_degree;
 					end if;
@@ -463,6 +467,7 @@ architecture logic of newton_raphson is
 					total_cycle_count <= total_cycle_count + 1;
 					cycle_count <= cycle_count + 1;
 					start_opr <= '0';
+					first_iteration <= '0';
 					if(complete_op = '1') then
 						cnt <= 0;
 						float_comp_in1(30 downto 0) <= accuracy(30 downto 0);
