@@ -5,6 +5,8 @@
 #include <unistd.h>
 #include <string.h>
 #include <time.h>
+#include <gsl/gsl_poly.h>
+#include <gsl/gsl_complex.h>
 
 #define floatSize 32
 #define maxFloatNumber 32
@@ -183,9 +185,34 @@ int computeDerivative()
 	struct timespec ts_start_compute;
 	struct timespec ts_stop_compute;
 	double cpu_compute_time;
+	int i;
 	
 	printf("\n");
 	variable = fPointTemp.f;
+
+	double dPoly[degree_max+1];
+	double roots[degree_max*2];
+	float fPoly[degree_max+1];
+
+	memcpy(fPoly, fPoint, sizeof(float)*(degree_max+1));
+
+	for (i = 0; i < degree_max+1; i++)
+		dPoly[i] = fPoly[i];
+	
+  	gsl_poly_complex_workspace *w  = gsl_poly_complex_workspace_alloc (degree_max+1);
+  
+  	clock_gettime(CLOCK_MONOTONIC, &ts_start_compute);
+  	gsl_poly_complex_solve (dPoly, degree_max+1, w, roots);
+	clock_gettime(CLOCK_MONOTONIC, &ts_stop_compute);
+
+  	gsl_poly_complex_workspace_free (w);
+
+	cpu_compute_time = (ts_stop_compute.tv_sec - ts_start_compute.tv_sec)*1000000 + (ts_stop_compute.tv_nsec - ts_start_compute.tv_nsec) / 1000;
+	printf("Time spent for computation CPU using gsl                 : %lf usec \n\n\n",cpu_compute_time);
+
+  	for (i = 0; i < degree_max; i++)
+      printf("%d.root                                   		     : %+.18f %+.18fi\n", i, roots[2*i], roots[2*i+1]);
+
 
 	clock_gettime(CLOCK_MONOTONIC, &ts_start_compute);
 	
