@@ -271,8 +271,7 @@ __device__ void sumOfArray(float *array, int size)
 }
 
 
-__device__ void evalutaionPolynomial(float *coeff_array, float variable, int degree_min, 
-									 float *polynomial_mult)
+__device__ void evalutaionPolynomial(float *coeff_array, float variable, float *polynomial_mult)
 {
 	int index = threadIdx.x;
 	float polynomial_pow ;
@@ -281,15 +280,24 @@ __device__ void evalutaionPolynomial(float *coeff_array, float variable, int deg
 		polynomial_mult[index] = coeff_array[index];
 	else
 	{
-		polynomial_pow = __powf(variable, index + degree_min);
+		if(variable < 0)
+		{
+			//variable = __fsub_rn(0.0f, variable);
+			variable = -variable;
+			polynomial_pow = __powf(variable, (float)index);
+			if(index%2)
+				polynomial_pow = -polynomial_pow;
+				//polynomial_pow = __fsub_rn(0.0f, polynomial_pow);
+		}
+		else
+			polynomial_pow = __powf(variable, (float)index);
+	
 		polynomial_mult[index] = __fmul_rn(coeff_array[index], polynomial_pow); 
 	}
-	//sprintf("evalutaionPolynomial index %d polynomial_pow %f \n",index, polynomial_mult[index]);
-
+	__syncthreads();
 }
 
-__device__ void evalutaionDerivativeOfPolynomial(float *coeff_array, float variable, int degree_min, 
-												 float *derivative_mult)
+__device__ void evalutaionDerivativeOfPolynomial(float *coeff_array, float variable, float *derivative_mult)
 {
 	int index = threadIdx.x;
 	float derivative_pow;
@@ -304,14 +312,26 @@ __device__ void evalutaionDerivativeOfPolynomial(float *coeff_array, float varia
 	}
 	else
 	{
-		derivative_pow = __powf(variable, index + degree_min - 1);
-		derivative_mult[index] = __fmul_rn(coeff_array[index], index + degree_min);
+		if(variable < 0)
+		{
+			//variable = __fsub_rn(0.0f, variable);
+			variable = -variable;
+			derivative_pow = __powf(variable, (float)(index - 1));
+			if(!(index%2))
+				derivative_pow = -derivative_pow;
+				//derivative_pow = __fsub_rn(0.0f, derivative_pow);
+		}
+		else
+			derivative_pow = __powf(variable, (float)(index - 1));
+		
+		derivative_mult[index] = __fmul_rn(coeff_array[index], index);
 		derivative_mult[index] = __fmul_rn(derivative_mult[index], derivative_pow);
 	}
-	//printf("evalutaionDerivativeOfPolynomial index %d derivative_pow %f \n",index, derivative_mult[index]);
+	__syncthreads();
+
 }
 
-__global__ void newtonRaphsonIteration (float *coeff_array, float *variable, float *size, int *degree_min,
+__global__ void newtonRaphsonIteration (float *coeff_array, float *variable, float *size,
 										float *err, float *derivative_mult, float *polynomial_mult)
 {
 	int block_index = blockIdx.x;
@@ -321,11 +341,10 @@ __global__ void newtonRaphsonIteration (float *coeff_array, float *variable, flo
 	float size_of_adder;
 	*err = 0;
 
-	//printf("newtonRaphsonIteration var %f err %f \n",*variable, *err);
 	if(block_index)
-		evalutaionPolynomial(coeff_array, *variable, *degree_min, polynomial_mult);
+		evalutaionPolynomial(coeff_array, *variable, polynomial_mult);
 	else
-		evalutaionDerivativeOfPolynomial(coeff_array, *variable, *degree_min, derivative_mult);
+		evalutaionDerivativeOfPolynomial(coeff_array, *variable, derivative_mult);
 
 	size_of_adder = *size;
 	while(count < addition_iter)
@@ -343,7 +362,6 @@ __global__ void newtonRaphsonIteration (float *coeff_array, float *variable, flo
 	if(block_index == 0 && index == 0)
 	{
 		*err = __fdiv_rn(polynomial_mult[0], derivative_mult[0]);
-		//printf("newtonRaphsonIteration 2 var %f err %f \n",*variable, *err);
 	}
 }
 
@@ -357,7 +375,6 @@ int computeDerivativeGpu()
     int size = degree_max - degree_min + 1;
     float *coeff_array;
 	float *size_gpu;
-	int *degree_min_gpu;
 	float *variable_gpu;
 	float addition_iter = ceil(log2(size));
 	variable = fPointTemp.f;
@@ -369,7 +386,6 @@ int computeDerivativeGpu()
 
     cudaMalloc(&coeff_array, sizeof(float)*size);
 	cudaMalloc(&size_gpu, sizeof(float));
-	cudaMalloc(&degree_min_gpu, sizeof(int));
 	cudaMalloc(&variable_gpu, sizeof(float));
 	cudaMalloc(&err_gpu, sizeof(float));
 
@@ -377,14 +393,13 @@ int computeDerivativeGpu()
 	cudaMalloc(&polynomial_mult, sizeof(float)*size);
 
     cudaMemcpy(size_gpu, &fsize, sizeof(float), cudaMemcpyHostToDevice);
-	cudaMemcpy(degree_min_gpu, &degree_min, sizeof(int), cudaMemcpyHostToDevice);
 	cudaMemcpy(coeff_array, fPoint, size*sizeof(float), cudaMemcpyHostToDevice);
 
     clock_gettime(CLOCK_MONOTONIC, &ts_start_compute);
 	while(iter_count < iteration_count)
 	{
 		cudaMemcpy(variable_gpu, &variable, sizeof(float), cudaMemcpyHostToDevice);
-		newtonRaphsonIteration<<<2,size>>>(coeff_array, variable_gpu, size_gpu, degree_min_gpu, err_gpu, derivative_mult, polynomial_mult);
+		newtonRaphsonIteration<<<2,size>>>(coeff_array, variable_gpu, size_gpu, err_gpu, derivative_mult, polynomial_mult);
         cudaDeviceSynchronize();
 		cudaMemcpy(&err, err_gpu, sizeof(float), cudaMemcpyDeviceToHost);
 		//printf("computeDerivativeGpu var %f err %f \n",variable, err);
@@ -397,7 +412,6 @@ int computeDerivativeGpu()
 
 	cudaFree(coeff_array);
 	cudaFree(size_gpu);
-	cudaFree(degree_min_gpu);
 	cudaFree(variable_gpu);
 	cudaFree(derivative_mult);
 	cudaFree(polynomial_mult);
@@ -512,5 +526,5 @@ int main()
 		printf("ERROR receiveFromFpga! \n");
 		return (1);
 	}
-}
+ }
 

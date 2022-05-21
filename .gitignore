@@ -32,3 +32,5 @@ float
 greybox_tmp/
 
 simulation/modelsim/newton_raphson_modelsim.xrf
+
+.vscode/
