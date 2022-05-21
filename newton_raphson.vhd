@@ -32,7 +32,6 @@ architecture logic of newton_raphson is
 			start_op							: in 	std_logic;
 			first_iteration				: in 	std_logic;
 			degree							: in 	integer;
-			degree_min						: in 	integer;
 			variable_value					: in	std_logic_vector(31 downto 0):= (others => '0');
 			calculator_result				: out	std_logic_vector(31 downto 0):= (others => '0');
 			complete_op						: out	std_logic:= '0';
@@ -121,7 +120,7 @@ architecture logic of newton_raphson is
 	
 	signal variable_value					: std_logic_vector(31 downto 0):= (others => '0');
 
-	signal degree_min, degree_max, degree	: integer:= 0;
+	signal degree	: integer:= 0;
 	
 	signal start_opr							: std_logic:= '0';
 	signal first_iteration					: std_logic:= '0';
@@ -140,9 +139,7 @@ architecture logic of newton_raphson is
 	signal interation_limit			: std_logic_vector(31 downto 0):= (others => '0');
 	
 	type machine is(
-		get_min_degree, 
 		get_max_degree,
-		degree_range_control,
 		get_var_val, 
 		get_error_val,
 		get_iteration_val,
@@ -156,7 +153,7 @@ architecture logic of newton_raphson is
 		reset_all_variable,
 		idle
 	);
-	signal state: machine:= get_min_degree;																-- state machine instruction
+	signal state: machine:= idle;																-- state machine instruction
 	
 	begin
 	
@@ -168,7 +165,6 @@ architecture logic of newton_raphson is
 		start_op				=> start_opr,
 		first_iteration	=> first_iteration,
 		degree				=> degree,
-		degree_min			=> degree_min,
 		variable_value		=> variable_value,
 		calculator_result	=> calculator_result,
 		accuracy				=> accuracy,
@@ -250,44 +246,42 @@ architecture logic of newton_raphson is
 			cycle_count					<= (others => '0');
 			total_cycle_count			<= (others => '0');
 			state 						<= idle;
-			degree_min					<= 0;	
-			degree_max					<= 0;	
 			degree						<= 0;	
 			start_opr					<= '0';			
 			leds 							<= "0000000000";
 			variable_value		  		<= (others => '0');
-			coefficient(0)  				<= (others => '0');
-			coefficient(1)  				<= (others => '0');
-			coefficient(2)  				<= (others => '0');
-			coefficient(3)  				<= (others => '0');
-			coefficient(4)  				<= (others => '0');
-			coefficient(5)  				<= (others => '0');
-			coefficient(6) 				<= (others => '0');
-			coefficient(7)  				<= (others => '0');
-			coefficient(8)  				<= (others => '0');
-			coefficient(9)  				<= (others => '0');
-			coefficient(10)  				<= (others => '0');
-			coefficient(11)				<= (others => '0');
-			coefficient(12)  				<= (others => '0');
-			coefficient(13)  				<= (others => '0');
-			coefficient(14)  				<= (others => '0');
-			coefficient(15)  				<= (others => '0');
-			coefficient(16)  				<= (others => '0');
-			coefficient(17)  				<= (others => '0');
-			coefficient(18) 				<= (others => '0');
-			coefficient(19)  				<= (others => '0');
-			coefficient(20)  				<= (others => '0');
-			coefficient(21)  				<= (others => '0');
-			coefficient(22)  				<= (others => '0');
-			coefficient(23)  				<= (others => '0');
-			coefficient(24)  				<= (others => '0');
-			coefficient(25)  				<= (others => '0');
-			coefficient(26)  				<= (others => '0');
-			coefficient(27)  				<= (others => '0');
-			coefficient(28)  				<= (others => '0');
-			coefficient(29)  				<= (others => '0');
-			coefficient(30)  				<= (others => '0');
-			coefficient(31)  				<= (others => '0');
+			coefficient(0)  			<= (others => '0');
+			coefficient(1)  			<= (others => '0');
+			coefficient(2)  			<= (others => '0');
+			coefficient(3)  			<= (others => '0');
+			coefficient(4)  			<= (others => '0');
+			coefficient(5)  			<= (others => '0');
+			coefficient(6) 			<= (others => '0');
+			coefficient(7)  			<= (others => '0');
+			coefficient(8)  			<= (others => '0');
+			coefficient(9)  			<= (others => '0');
+			coefficient(10)  			<= (others => '0');
+			coefficient(11)			<= (others => '0');
+			coefficient(12)  			<= (others => '0');
+			coefficient(13)  			<= (others => '0');
+			coefficient(14)  			<= (others => '0');
+			coefficient(15)  			<= (others => '0');
+			coefficient(16)  			<= (others => '0');
+			coefficient(17)  			<= (others => '0');
+			coefficient(18) 			<= (others => '0');
+			coefficient(19)  			<= (others => '0');
+			coefficient(20)  			<= (others => '0');
+			coefficient(21)  			<= (others => '0');
+			coefficient(22)  			<= (others => '0');
+			coefficient(23)  			<= (others => '0');
+			coefficient(24)  			<= (others => '0');
+			coefficient(25)  			<= (others => '0');
+			coefficient(26)  			<= (others => '0');
+			coefficient(27)  			<= (others => '0');
+			coefficient(28)  			<= (others => '0');
+			coefficient(29)  			<= (others => '0');
+			coefficient(30)  			<= (others => '0');
+			coefficient(31)  			<= (others => '0');
 			iteration_count			<= (others => '0');
 			error_const_value			<= (others => '0');
 			interation_limit			<= (others => '0');
@@ -303,44 +297,41 @@ architecture logic of newton_raphson is
 					count							<= 0;
 					cycle_count					<= (others => '0');
 					total_cycle_count			<= (others => '0');
-					state 						<= idle;
-					degree_min					<= 0;	
-					degree_max					<= 0;	
 					degree						<= 0;	
 					start_opr					<= '0';			
 					variable_value		  		<= (others => '0');
-					coefficient(0)  				<= (others => '0');
-					coefficient(1)  				<= (others => '0');
-					coefficient(2)  				<= (others => '0');
-					coefficient(3)  				<= (others => '0');
-					coefficient(4)  				<= (others => '0');
-					coefficient(5)  				<= (others => '0');
-					coefficient(6) 				<= (others => '0');
-					coefficient(7)  				<= (others => '0');
-					coefficient(8)  				<= (others => '0');
-					coefficient(9)  				<= (others => '0');
-					coefficient(10)  				<= (others => '0');
-					coefficient(11)				<= (others => '0');
-					coefficient(12)  				<= (others => '0');
-					coefficient(13)  				<= (others => '0');
-					coefficient(14)  				<= (others => '0');
-					coefficient(15)  				<= (others => '0');
-					coefficient(16)  				<= (others => '0');
-					coefficient(17)  				<= (others => '0');
-					coefficient(18) 				<= (others => '0');
-					coefficient(19)  				<= (others => '0');
-					coefficient(20)  				<= (others => '0');
-					coefficient(21)  				<= (others => '0');
-					coefficient(22)  				<= (others => '0');
-					coefficient(23)  				<= (others => '0');
-					coefficient(24)  				<= (others => '0');
-					coefficient(25)  				<= (others => '0');
-					coefficient(26)  				<= (others => '0');
-					coefficient(27)  				<= (others => '0');
-					coefficient(28)  				<= (others => '0');
-					coefficient(29)  				<= (others => '0');
-					coefficient(30)  				<= (others => '0');
-					coefficient(31)  				<= (others => '0');
+					coefficient(0)  			<= (others => '0');
+					coefficient(1)  			<= (others => '0');
+					coefficient(2)  			<= (others => '0');
+					coefficient(3)  			<= (others => '0');
+					coefficient(4)  			<= (others => '0');
+					coefficient(5)  			<= (others => '0');
+					coefficient(6) 			<= (others => '0');
+					coefficient(7)  			<= (others => '0');
+					coefficient(8)  			<= (others => '0');
+					coefficient(9)  			<= (others => '0');
+					coefficient(10)  			<= (others => '0');
+					coefficient(11)			<= (others => '0');
+					coefficient(12)  			<= (others => '0');
+					coefficient(13)  			<= (others => '0');
+					coefficient(14)  			<= (others => '0');
+					coefficient(15)  			<= (others => '0');
+					coefficient(16)  			<= (others => '0');
+					coefficient(17)  			<= (others => '0');
+					coefficient(18) 			<= (others => '0');
+					coefficient(19)  			<= (others => '0');
+					coefficient(20)  			<= (others => '0');
+					coefficient(21)  			<= (others => '0');
+					coefficient(22)  			<= (others => '0');
+					coefficient(23)  			<= (others => '0');
+					coefficient(24)  			<= (others => '0');
+					coefficient(25)  			<= (others => '0');
+					coefficient(26)  			<= (others => '0');
+					coefficient(27)  			<= (others => '0');
+					coefficient(28)  			<= (others => '0');
+					coefficient(29)  			<= (others => '0');
+					coefficient(30)  			<= (others => '0');
+					coefficient(31)  			<= (others => '0');
 					iteration_count			<= (others => '0');
 					error_const_value			<= (others => '0');
 					interation_limit			<= (others => '0');
@@ -348,40 +339,23 @@ architecture logic of newton_raphson is
 					start_opr	<= '0';
 					first_iteration <= '1';
 					if(u_valid_out = '1') then																-- if data came from UART
-						state 	<= get_min_degree;
-					end if;
-			
-				when get_min_degree =>
-					total_cycle_count <= total_cycle_count + 1;
-					degree_min 	<= to_integer(unsigned(u_data_out));
-					if(to_integer(unsigned(u_data_out)) > 31) then
-						state 	<= idle;
-					else
+						leds <= "0000000001";
 						state 	<= get_max_degree;
 					end if;
 					
 				when get_max_degree =>
-					total_cycle_count <= total_cycle_count + 1;
-					if(u_valid_out = '1') then																-- if data came from UART
-						degree_max 	<= to_integer(unsigned(u_data_out));
-						if(to_integer(unsigned(u_data_out)) > 31) then
-							state 	<= idle;
-						else
-							state 	<= degree_range_control;
-						end if;
-					end if;	
-					
-				when degree_range_control =>
-					total_cycle_count <= total_cycle_count + 1;
-					if(degree_min + degree_max > 31) then												-- degree must be in range [-31,31] with maximum 32 coefficients
-						state 	<= idle;
+					leds <= "0000000010"; 
+					total_cycle_count <= total_cycle_count + 1; 
+					degree <= to_integer(unsigned(u_data_out)); 
+					--leds(7 downto 0) <= u_data_out;
+					if(to_integer(unsigned(u_data_out)) > 31) then 
+						state 	<= idle; 
 					else
-						state 	<= get_var_val;
-						degree 	<= degree_max + degree_min + 1;
+						state 	<= get_var_val; 
 					end if;
 					
-					
 				when get_var_val =>
+					leds <= "0000000011";
 					total_cycle_count <= total_cycle_count + 1;
 					if(u_valid_out = '1') then																-- if data came from UART	
 						cnt 		<= (cnt + 1);
@@ -399,6 +373,7 @@ architecture logic of newton_raphson is
 					end if;
 					
 				when get_error_val =>
+					leds <= "0000000100";
 					total_cycle_count <= total_cycle_count + 1;
 					if(u_valid_out = '1') then																-- if data came from UART	
 						cnt 		<= (cnt + 1);
@@ -416,6 +391,7 @@ architecture logic of newton_raphson is
 					end if;
 					
 				when get_iteration_val =>
+					leds <= "0000000101";
 					total_cycle_count <= total_cycle_count + 1;
 					if(u_valid_out = '1') then																-- if data came from UART	
 						cnt 		<= (cnt + 1);
@@ -433,11 +409,12 @@ architecture logic of newton_raphson is
 					end if;
 					
 				when get_coefficients =>
+					leds <= "0000000110";
 					total_cycle_count <= total_cycle_count + 1;
 					if(cnt = 4) then
 						count 		<= (count + 1);
 						cnt 			<= 0;
-						if(count = degree - 1) then														-- end of given degree
+						if(count = degree) then														-- end of given degree
 							state 	<= initialize_calculator;
 							count 	<= 0;
 						end if;
@@ -457,6 +434,7 @@ architecture logic of newton_raphson is
 					end if;
 					
 				when initialize_calculator =>
+					leds <= "0000000111";
 					iteration_count <= iteration_count + 1;
 					cycle_count <= cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
@@ -464,6 +442,7 @@ architecture logic of newton_raphson is
 					state 		<= complete_calculator;
 					
 				when complete_calculator =>
+					leds <= "0000001000";
 					total_cycle_count <= total_cycle_count + 1;
 					cycle_count <= cycle_count + 1;
 					start_opr <= '0';
@@ -476,6 +455,7 @@ architecture logic of newton_raphson is
 					end if;
 	
 				when wait_compare =>
+					leds <= "0000001001";
 					total_cycle_count <= total_cycle_count + 1;
 					cycle_count <= cycle_count + 1;
 					if(cnt = 2) then
@@ -486,9 +466,9 @@ architecture logic of newton_raphson is
 					end if;
 					
 				when complete_compare =>
+					leds <= "0000001010";
 					cycle_count <= cycle_count + 1;
 					total_cycle_count <= total_cycle_count + 1;
-					leds <= accuracy(30 downto 21);
 					if(iteration_count < interation_limit) then 
 						if(comparator_result = "0" ) then 
 							state <= initialize_calculator; 
@@ -501,12 +481,13 @@ architecture logic of newton_raphson is
 					end if; 
 					
 				when send_result =>
+					leds <= "0000001011";
 					total_cycle_count <= total_cycle_count + 1;
 					u_valid_in 	<= '0';
 					if(u_data_in_ready = '0' and u_data_in_ready_prev = '1') then
 						cnt <= (cnt + 1);
 					end if;
-		
+					
 					if(cnt < 4) then
 						u_valid_in 	<= '1';
 						u_data_in 	<= calculator_result((31 - (3-cnt)*8) downto (24 - (3-cnt)*8));
@@ -526,9 +507,11 @@ architecture logic of newton_raphson is
 					end if;
 					
 				when power_off =>
+					leds <= "0000001100";
 					state <= reset_all_variable;
 					
 				when reset_all_variable =>
+					leds <= "0000001101";
 					state <= idle;
 					u_valid_in 					<= '0';
 					u_data_in 					<= "01010010";														-- ASCII 'R'
@@ -536,8 +519,6 @@ architecture logic of newton_raphson is
 					count							<= 0;
 					cycle_count					<= (others => '0');
 					total_cycle_count			<= (others => '0');
-					degree_min					<= 0;	
-					degree_max					<= 0;	
 					degree						<= 0;	
 					start_opr					<= '0';			
 					variable_value		  		<= (others => '0');

@@ -11,7 +11,6 @@ entity calculator_rtl is
 		start_op							: in 	std_logic;
 		first_iteration				: in 	std_logic;
 		degree							: in 	integer;
-		degree_min						: in 	integer;
 		variable_value					: in	std_logic_vector(31 downto 0):= (others => '0');
 		calculator_result				: out	std_logic_vector(31 downto 0):= (others => '0');
 		accuracy							: out std_logic_vector(31 downto 0):= (others => '0');
@@ -173,7 +172,6 @@ architecture logic of calculator_rtl is
 	
 	signal derivative_result		: std_logic_vector(31 downto 0):= (others => '0');
 	signal polynomial_result		: std_logic_vector(31 downto 0):= (others => '0');
-	signal variable_value_int		: std_logic_vector(31 downto 0):= (others => '0');
 	signal cnt							: integer range 0 to 100:= 0;
 	
 	constant ADDER_DELAY 		: integer := 8;
@@ -1012,7 +1010,6 @@ architecture logic of calculator_rtl is
 			variable_power_array(30) <= (others => '0');
 			variable_power_array(31) <= (others => '0');
 			complete_op		 			 <= '0';
-			variable_value_int		 <= (others => '0');
 			calculator_result			 <= (others => '0');
 			derivative_result			 <= (others => '0');
 			polynomial_result			 <= (others => '0');
@@ -1024,7 +1021,6 @@ architecture logic of calculator_rtl is
 			
 				when idle =>
 					if(start_op = '1') then
-						variable_value_int	<= variable_value;
 						coefficient(0) 	<= coefficient0;
 						coefficient(1) 	<= coefficient1;
 						coefficient(2) 	<= coefficient2; 
@@ -1059,7 +1055,7 @@ architecture logic of calculator_rtl is
 						coefficient(31) 	<= coefficient31;
 						complete_op		 	<= '0';
 						variable_power_array(0)	<= "00111111100000000000000000000000"; -- float '1'
-						variable_power_array(1) <= variable_value_int(31 downto 0); 
+						variable_power_array(1) <= variable_value(31 downto 0); 
 						if(first_iteration) then
 							state 			<= derivative_coeff;
 						else
@@ -1073,69 +1069,69 @@ architecture logic of calculator_rtl is
 					
 				when derivative_coeff =>
 					cnt <= 0;
-					float_mult_in1(0)  <= fp_const(degree_min);
+					float_mult_in1(0)  <= fp_const(0);
 					float_mult_in2(0)  <= coefficient(0);						
-					float_mult_in1(1)  <= fp_const(degree_min + 1);
+					float_mult_in1(1)  <= fp_const(1);
 					float_mult_in2(1)  <= coefficient(1);						
-					float_mult_in1(2)  <= fp_const(degree_min + 2);
+					float_mult_in1(2)  <= fp_const(2);
 					float_mult_in2(2)  <= coefficient(2);						
-					float_mult_in1(3)  <= fp_const(degree_min + 3);
+					float_mult_in1(3)  <= fp_const(3);
 					float_mult_in2(3)  <= coefficient(3);						
-					float_mult_in1(4)  <= fp_const(degree_min + 4);
+					float_mult_in1(4)  <= fp_const(4);
 					float_mult_in2(4)  <= coefficient(4);						
-					float_mult_in1(5)  <= fp_const(degree_min + 5);
+					float_mult_in1(5)  <= fp_const(5);
 					float_mult_in2(5)  <= coefficient(5);						
-					float_mult_in1(6)  <= fp_const(degree_min + 6);
+					float_mult_in1(6)  <= fp_const(6);
 					float_mult_in2(6)  <= coefficient(6);						
-					float_mult_in1(7)  <= fp_const(degree_min + 7);
+					float_mult_in1(7)  <= fp_const(7);
 					float_mult_in2(7)  <= coefficient(7);						
-					float_mult_in1(8)  <= fp_const(degree_min + 8);
+					float_mult_in1(8)  <= fp_const(8);
 					float_mult_in2(8)  <= coefficient(8);						
-					float_mult_in1(9)  <= fp_const(degree_min + 9);
+					float_mult_in1(9)  <= fp_const(9);
 					float_mult_in2(9)  <= coefficient(9);						
-					float_mult_in1(10) <= fp_const(degree_min + 10);
+					float_mult_in1(10) <= fp_const(10);
 					float_mult_in2(10) <= coefficient(10);						
-					float_mult_in1(11) <= fp_const(degree_min + 11);
+					float_mult_in1(11) <= fp_const(11);
 					float_mult_in2(11) <= coefficient(11);						
-					float_mult_in1(12) <= fp_const(degree_min + 12);
+					float_mult_in1(12) <= fp_const(12);
 					float_mult_in2(12) <= coefficient(12);						
-					float_mult_in1(13) <= fp_const(degree_min + 13);
+					float_mult_in1(13) <= fp_const(13);
 					float_mult_in2(13) <= coefficient(13);						
-					float_mult_in1(14) <= fp_const(degree_min + 14);
+					float_mult_in1(14) <= fp_const(14);
 					float_mult_in2(14) <= coefficient(14);						
-					float_mult_in1(15) <= fp_const(degree_min + 15);
+					float_mult_in1(15) <= fp_const(15);
 					float_mult_in2(15) <= coefficient(15);		
-					float_mult_in1(16) <= fp_const(degree_min + 16);
+					float_mult_in1(16) <= fp_const(16);
 					float_mult_in2(16) <= coefficient(16);	
-					float_mult_in1(17) <= fp_const(degree_min + 17);
+					float_mult_in1(17) <= fp_const(17);
 					float_mult_in2(17) <= coefficient(17);	
-					float_mult_in1(18) <= fp_const(degree_min + 18);
+					float_mult_in1(18) <= fp_const(18);
 					float_mult_in2(18) <= coefficient(18);	
-					float_mult_in1(19) <= fp_const(degree_min + 19);
+					float_mult_in1(19) <= fp_const(19);
 					float_mult_in2(19) <= coefficient(19);	
-					float_mult_in1(20) <= fp_const(degree_min + 20);
+					float_mult_in1(20) <= fp_const(20);
 					float_mult_in2(20) <= coefficient(20);	
-					float_mult_in1(21) <= fp_const(degree_min + 21);
+					float_mult_in1(21) <= fp_const(21);
 					float_mult_in2(21) <= coefficient(21);	
-					float_mult_in1(22) <= fp_const(degree_min + 22);
+					float_mult_in1(22) <= fp_const(22);
 					float_mult_in2(22) <= coefficient(22);
-					float_mult_in1(23) <= fp_const(degree_min + 23);
+					float_mult_in1(23) <= fp_const(23);
 					float_mult_in2(23) <= coefficient(23);
-					float_mult_in1(24) <= fp_const(degree_min + 24);
+					float_mult_in1(24) <= fp_const(24);
 					float_mult_in2(24) <= coefficient(24);
-					float_mult_in1(25) <= fp_const(degree_min + 25);
+					float_mult_in1(25) <= fp_const(25);
 					float_mult_in2(25) <= coefficient(25);
-					float_mult_in1(26) <= fp_const(degree_min + 26);
+					float_mult_in1(26) <= fp_const(26);
 					float_mult_in2(26) <= coefficient(26);
-					float_mult_in1(27) <= fp_const(degree_min + 27);
+					float_mult_in1(27) <= fp_const(27);
 					float_mult_in2(27) <= coefficient(27);
-					float_mult_in1(28) <= fp_const(degree_min + 28);
+					float_mult_in1(28) <= fp_const(28);
 					float_mult_in2(28) <= coefficient(28);
-					float_mult_in1(29) <= fp_const(degree_min + 29);
+					float_mult_in1(29) <= fp_const(29);
 					float_mult_in2(29) <= coefficient(29);
-					float_mult_in1(30) <= fp_const(degree_min + 30);
+					float_mult_in1(30) <= fp_const(30);
 					float_mult_in2(30) <= coefficient(30);
-					float_mult_in1(31) <= fp_const(degree_min + 31);
+					float_mult_in1(31) <= fp_const(31);
 					float_mult_in2(31) <= coefficient(31);				
 					state <= wait_mult_op;
 					
@@ -1185,8 +1181,8 @@ architecture logic of calculator_rtl is
 					
 				when calculate_var2 =>
 					cnt <= 0;
-					float_mult_in1(0) <= variable_value_int(31 downto 0);
-					float_mult_in2(0) <= variable_value_int(31 downto 0);
+					float_mult_in1(0) <= variable_value;
+					float_mult_in2(0) <= variable_value;
 					state <= wait_mult1_op;
 				
 				when wait_mult1_op =>
@@ -1352,7 +1348,7 @@ architecture logic of calculator_rtl is
 				when wait_mult5_op =>
 					if(cnt = MULTIPLIER_DELAY) then
 						cnt <= 0;
-						variable_power_array(17)					<= float_mult_out(0);
+						variable_power_array(17)						<= float_mult_out(0);
 						if(degree > 17) then
 							variable_power_array(18)					<= float_mult_out(1);
 						end if;
@@ -1402,70 +1398,68 @@ architecture logic of calculator_rtl is
 					
 				when evaluate_derivative =>
 					state <= wait_evaluate_derivative;
-					cnt <= 0;
-					float_mult_in1(0)  <= variable_power_array(degree_min - 1);
-					float_mult_in2(0)  <= mult_degree_coef(0);						
-					float_mult_in1(1)  <= variable_power_array(degree_min);
+					cnt <= 0;						
+					float_mult_in1(1)  <= variable_power_array(0);
 					float_mult_in2(1)  <= mult_degree_coef(1);						
-					float_mult_in1(2)  <= variable_power_array(degree_min + 1);
+					float_mult_in1(2)  <= variable_power_array(1);
 					float_mult_in2(2)  <= mult_degree_coef(2);						
-					float_mult_in1(3)  <= variable_power_array(degree_min + 2);
+					float_mult_in1(3)  <= variable_power_array(2);
 					float_mult_in2(3)  <= mult_degree_coef(3);						
-					float_mult_in1(4)  <= variable_power_array(degree_min + 3);
+					float_mult_in1(4)  <= variable_power_array(3);
 					float_mult_in2(4)  <= mult_degree_coef(4);						
-					float_mult_in1(5)  <= variable_power_array(degree_min + 4);
+					float_mult_in1(5)  <= variable_power_array(4);
 					float_mult_in2(5)  <= mult_degree_coef(5);						
-					float_mult_in1(6)  <= variable_power_array(degree_min + 5);
+					float_mult_in1(6)  <= variable_power_array(5);
 					float_mult_in2(6)  <= mult_degree_coef(6);						
-					float_mult_in1(7)  <= variable_power_array(degree_min + 6);
+					float_mult_in1(7)  <= variable_power_array(6);
 					float_mult_in2(7)  <= mult_degree_coef(7);						
-					float_mult_in1(8)  <= variable_power_array(degree_min + 7);
+					float_mult_in1(8)  <= variable_power_array(7);
 					float_mult_in2(8)  <= mult_degree_coef(8);						
-					float_mult_in1(9)  <= variable_power_array(degree_min + 8);
+					float_mult_in1(9)  <= variable_power_array(8);
 					float_mult_in2(9)  <= mult_degree_coef(9);						
-					float_mult_in1(10) <= variable_power_array(degree_min + 9);
+					float_mult_in1(10) <= variable_power_array(9);
 					float_mult_in2(10) <= mult_degree_coef(10);						
-					float_mult_in1(11) <= variable_power_array(degree_min + 10);
+					float_mult_in1(11) <= variable_power_array(10);
 					float_mult_in2(11) <= mult_degree_coef(11);						
-					float_mult_in1(12) <= variable_power_array(degree_min + 11);
+					float_mult_in1(12) <= variable_power_array(11);
 					float_mult_in2(12) <= mult_degree_coef(12);						
-					float_mult_in1(13) <= variable_power_array(degree_min + 12);
+					float_mult_in1(13) <= variable_power_array(12);
 					float_mult_in2(13) <= mult_degree_coef(13);						
-					float_mult_in1(14) <= variable_power_array(degree_min + 13);
+					float_mult_in1(14) <= variable_power_array(13);
 					float_mult_in2(14) <= mult_degree_coef(14);						
-					float_mult_in1(15) <= variable_power_array(degree_min + 14);
+					float_mult_in1(15) <= variable_power_array(14);
 					float_mult_in2(15) <= mult_degree_coef(15);		
-					float_mult_in1(16) <= variable_power_array(degree_min + 15);
+					float_mult_in1(16) <= variable_power_array(15);
 					float_mult_in2(16) <= mult_degree_coef(16);	
-					float_mult_in1(17) <= variable_power_array(degree_min + 16);
+					float_mult_in1(17) <= variable_power_array(16);
 					float_mult_in2(17) <= mult_degree_coef(17);	
-					float_mult_in1(18) <= variable_power_array(degree_min + 17);
+					float_mult_in1(18) <= variable_power_array(17);
 					float_mult_in2(18) <= mult_degree_coef(18);	
-					float_mult_in1(19) <= variable_power_array(degree_min + 18);
+					float_mult_in1(19) <= variable_power_array(18);
 					float_mult_in2(19) <= mult_degree_coef(19);	
-					float_mult_in1(20) <= variable_power_array(degree_min + 19);
+					float_mult_in1(20) <= variable_power_array(19);
 					float_mult_in2(20) <= mult_degree_coef(20);	
-					float_mult_in1(21) <= variable_power_array(degree_min + 20);
+					float_mult_in1(21) <= variable_power_array(20);
 					float_mult_in2(21) <= mult_degree_coef(21);	
-					float_mult_in1(22) <= variable_power_array(degree_min + 21);
+					float_mult_in1(22) <= variable_power_array(21);
 					float_mult_in2(22) <= mult_degree_coef(22);
-					float_mult_in1(23) <= variable_power_array(degree_min + 22);
+					float_mult_in1(23) <= variable_power_array(22);
 					float_mult_in2(23) <= mult_degree_coef(23);
-					float_mult_in1(24) <= variable_power_array(degree_min + 23);
+					float_mult_in1(24) <= variable_power_array(23);
 					float_mult_in2(24) <= mult_degree_coef(24);
-					float_mult_in1(25) <= variable_power_array(degree_min + 24);
+					float_mult_in1(25) <= variable_power_array(24);
 					float_mult_in2(25) <= mult_degree_coef(25);
-					float_mult_in1(26) <= variable_power_array(degree_min + 25);
+					float_mult_in1(26) <= variable_power_array(25);
 					float_mult_in2(26) <= mult_degree_coef(26);
-					float_mult_in1(27) <= variable_power_array(degree_min + 26);
+					float_mult_in1(27) <= variable_power_array(26);
 					float_mult_in2(27) <= mult_degree_coef(27);
-					float_mult_in1(28) <= variable_power_array(degree_min + 27);
+					float_mult_in1(28) <= variable_power_array(27);
 					float_mult_in2(28) <= mult_degree_coef(28);
-					float_mult_in1(29) <= variable_power_array(degree_min + 28);
+					float_mult_in1(29) <= variable_power_array(28);
 					float_mult_in2(29) <= mult_degree_coef(29);
-					float_mult_in1(30) <= variable_power_array(degree_min + 29);
+					float_mult_in1(30) <= variable_power_array(29);
 					float_mult_in2(30) <= mult_degree_coef(30);
-					float_mult_in1(31) <= variable_power_array(degree_min + 30);
+					float_mult_in1(31) <= variable_power_array(30);
 					float_mult_in2(31) <= mult_degree_coef(31);	
 					
 				when wait_evaluate_derivative =>
@@ -1480,7 +1474,7 @@ architecture logic of calculator_rtl is
 					cnt <= 0;
 					state <= wait_evaluate_polynomial;
 					/* register derivative mult result */
-					derivative_mult_result(0) 	 <= float_mult_out(0);
+					derivative_mult_result(0) 	 <= fp_const(0);
 					derivative_mult_result(1) 	 <= float_mult_out(1);
 					derivative_mult_result(2) 	 <= float_mult_out(2);
 					derivative_mult_result(3) 	 <= float_mult_out(3);
@@ -1513,69 +1507,69 @@ architecture logic of calculator_rtl is
 					derivative_mult_result(30)  <= float_mult_out(30);
 					derivative_mult_result(31)  <= float_mult_out(31);
 					/* initialize multipliers */
-					float_mult_in1(0)  <= variable_power_array(degree_min);
+					float_mult_in1(0)  <= variable_power_array(0);
 					float_mult_in2(0)  <= coefficient(0);						
-					float_mult_in1(1)  <= variable_power_array(degree_min + 1);
+					float_mult_in1(1)  <= variable_power_array(1);
 					float_mult_in2(1)  <= coefficient(1);						
-					float_mult_in1(2)  <= variable_power_array(degree_min + 2);
+					float_mult_in1(2)  <= variable_power_array(2);
 					float_mult_in2(2)  <= coefficient(2);						
-					float_mult_in1(3)  <= variable_power_array(degree_min + 3);
+					float_mult_in1(3)  <= variable_power_array(3);
 					float_mult_in2(3)  <= coefficient(3);						
-					float_mult_in1(4)  <= variable_power_array(degree_min + 4);
+					float_mult_in1(4)  <= variable_power_array(4);
 					float_mult_in2(4)  <= coefficient(4);						
-					float_mult_in1(5)  <= variable_power_array(degree_min + 5);
+					float_mult_in1(5)  <= variable_power_array(5);
 					float_mult_in2(5)  <= coefficient(5);						
-					float_mult_in1(6)  <= variable_power_array(degree_min + 6);
+					float_mult_in1(6)  <= variable_power_array(6);
 					float_mult_in2(6)  <= coefficient(6);						
-					float_mult_in1(7)  <= variable_power_array(degree_min + 7);
+					float_mult_in1(7)  <= variable_power_array(7);
 					float_mult_in2(7)  <= coefficient(7);						
-					float_mult_in1(8)  <= variable_power_array(degree_min + 8);
+					float_mult_in1(8)  <= variable_power_array(8);
 					float_mult_in2(8)  <= coefficient(8);						
-					float_mult_in1(9)  <= variable_power_array(degree_min + 9);
+					float_mult_in1(9)  <= variable_power_array(9);
 					float_mult_in2(9)  <= coefficient(9);						
-					float_mult_in1(10) <= variable_power_array(degree_min + 10);
+					float_mult_in1(10) <= variable_power_array(10);
 					float_mult_in2(10) <= coefficient(10);						
-					float_mult_in1(11) <= variable_power_array(degree_min + 11);
+					float_mult_in1(11) <= variable_power_array(11);
 					float_mult_in2(11) <= coefficient(11);						
-					float_mult_in1(12) <= variable_power_array(degree_min + 12);
+					float_mult_in1(12) <= variable_power_array(12);
 					float_mult_in2(12) <= coefficient(12);						
-					float_mult_in1(13) <= variable_power_array(degree_min + 13);
+					float_mult_in1(13) <= variable_power_array(13);
 					float_mult_in2(13) <= coefficient(13);						
-					float_mult_in1(14) <= variable_power_array(degree_min + 14);
+					float_mult_in1(14) <= variable_power_array(14);
 					float_mult_in2(14) <= coefficient(14);						
-					float_mult_in1(15) <= variable_power_array(degree_min + 15);
+					float_mult_in1(15) <= variable_power_array(15);
 					float_mult_in2(15) <= coefficient(15);		
-					float_mult_in1(16) <= variable_power_array(degree_min + 16);
+					float_mult_in1(16) <= variable_power_array(16);
 					float_mult_in2(16) <= coefficient(16);	
-					float_mult_in1(17) <= variable_power_array(degree_min + 17);
+					float_mult_in1(17) <= variable_power_array(17);
 					float_mult_in2(17) <= coefficient(17);	
-					float_mult_in1(18) <= variable_power_array(degree_min + 18);
+					float_mult_in1(18) <= variable_power_array(18);
 					float_mult_in2(18) <= coefficient(18);	
-					float_mult_in1(19) <= variable_power_array(degree_min + 19);
+					float_mult_in1(19) <= variable_power_array(19);
 					float_mult_in2(19) <= coefficient(19);	
-					float_mult_in1(20) <= variable_power_array(degree_min + 20);
+					float_mult_in1(20) <= variable_power_array(20);
 					float_mult_in2(20) <= coefficient(20);	
-					float_mult_in1(21) <= variable_power_array(degree_min + 21);
+					float_mult_in1(21) <= variable_power_array(21);
 					float_mult_in2(21) <= coefficient(21);	
-					float_mult_in1(22) <= variable_power_array(degree_min + 22);
+					float_mult_in1(22) <= variable_power_array(22);
 					float_mult_in2(22) <= coefficient(22);
-					float_mult_in1(23) <= variable_power_array(degree_min + 23);
+					float_mult_in1(23) <= variable_power_array(23);
 					float_mult_in2(23) <= coefficient(23);
-					float_mult_in1(24) <= variable_power_array(degree_min + 24);
+					float_mult_in1(24) <= variable_power_array(24);
 					float_mult_in2(24) <= coefficient(24);
-					float_mult_in1(25) <= variable_power_array(degree_min + 25);
+					float_mult_in1(25) <= variable_power_array(25);
 					float_mult_in2(25) <= coefficient(25);
-					float_mult_in1(26) <= variable_power_array(degree_min + 26);
+					float_mult_in1(26) <= variable_power_array(26);
 					float_mult_in2(26) <= coefficient(26);
-					float_mult_in1(27) <= variable_power_array(degree_min + 27);
+					float_mult_in1(27) <= variable_power_array(27);
 					float_mult_in2(27) <= coefficient(27);
-					float_mult_in1(28) <= variable_power_array(degree_min + 28);
+					float_mult_in1(28) <= variable_power_array(28);
 					float_mult_in2(28) <= coefficient(28);
-					float_mult_in1(29) <= variable_power_array(degree_min + 29);
+					float_mult_in1(29) <= variable_power_array(29);
 					float_mult_in2(29) <= coefficient(29);
-					float_mult_in1(30) <= variable_power_array(degree_min + 30);
+					float_mult_in1(30) <= variable_power_array(30);
 					float_mult_in2(30) <= coefficient(30);
-					float_mult_in1(31) <= variable_power_array(degree_min + 31);
+					float_mult_in1(31) <= variable_power_array(31);
 					float_mult_in2(31) <= coefficient(31);
 					
 		
@@ -1800,7 +1794,7 @@ architecture logic of calculator_rtl is
 				when calculate_new_variable =>
 					cnt <= 0;
 					float_substractor_in2 	<= accuracy;
-					float_substractor_in1 	<= variable_value_int;
+					float_substractor_in1 	<= variable_value;
 					state <= wait_calculate_new_variable;
 				
 				when wait_calculate_new_variable =>
