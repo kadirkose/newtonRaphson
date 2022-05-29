@@ -181,8 +181,12 @@ int computeDerivative()
 	int iter_count = 0;
 	struct timespec ts_start_compute;
 	struct timespec ts_stop_compute;
-	double cpu_compute_time;
+	double cpu_compute_time, cpu_power_compute_time, cpu_mult_compute_time, cpu_variable_compute_time;
 	int i;
+	float power_result[33];
+	struct timespec ts_start_power_compute, ts_stop_power_compute;
+	struct timespec ts_start_mult_compute, ts_stop_mult_compute;
+	struct timespec ts_start_variable_compute, ts_stop_variable_compute;
 	
 	printf("\n");
 	variable = fPointTemp.f;
@@ -217,31 +221,39 @@ int computeDerivative()
 	{
 		subsResult = 0;
 		derSubsResult = 0;
-		for(degreeCount= 0; degreeCount < (degree_max-degree_min+1); degreeCount++)
+
+		clock_gettime(CLOCK_MONOTONIC, &ts_start_power_compute);
+		for(degreeCount= 0; degreeCount < (degree_max - degree_min + 2); degreeCount++)
+		{
+			power_result[degreeCount] = pow(variable, (degreeCount + degree_min - 1));
+		
+		}
+		clock_gettime(CLOCK_MONOTONIC, &ts_stop_power_compute);
+		for(degreeCount= 0; degreeCount < (degree_max - degree_min + 1); degreeCount++)
 		{
 			if((variable == 0) && (degree_min != 0))
 			{
 				printf("Process is stopped because variable is zero. x/0 is nan");
 				goto exit;
 			}
-
-			subsResult+= (fPoint[degreeCount].f) * (pow(variable, (degreeCount+degree_min)));
-			if(degreeCount+degree_min == 0)
+			subsResult+= (fPoint[degreeCount].f) * power_result[degreeCount + 1];
+			if(degreeCount + degree_min == 0)
 				derSubsResult+= 0;
 			else
-				derSubsResult+= (fPoint[degreeCount].f * (degreeCount+degree_min)) * (pow(variable, (degreeCount+degree_min-1)));
+				derSubsResult+= (fPoint[degreeCount].f * (degreeCount + degree_min)) * power_result[degreeCount];
 		}
+		clock_gettime(CLOCK_MONOTONIC, &ts_stop_mult_compute);
 		if(derSubsResult == 0)
 		{
 			printf("Process is stopped because derSubsResult is zero. subsResult/0 is nan. iteratin: %d, root :%f \n", iter_count, variable);
 			goto exit;
 		}
-			
-
+		clock_gettime(CLOCK_MONOTONIC, &ts_start_variable_compute);
 		err = subsResult / derSubsResult;
 		variable = variable - err;
 		if(fabs(err) < errRate.f)
 			break;
+		clock_gettime(CLOCK_MONOTONIC, &ts_stop_variable_compute);
 		iter_count += 1;
 	}
 exit:
@@ -252,7 +264,17 @@ exit:
 	printBinary(fPointTemp.raw.exponent, 8);
 	printBinary(fPointTemp.raw.mantissa, 23);
 	printf("\n");
-	cpu_compute_time = (ts_stop_compute.tv_sec - ts_start_compute.tv_sec)*1000000 + (ts_stop_compute.tv_nsec - ts_start_compute.tv_nsec) / 1000;
+	cpu_compute_time = (ts_stop_compute.tv_sec - ts_start_compute.tv_sec)*1000000000 + 
+					   (ts_stop_compute.tv_nsec - ts_start_compute.tv_nsec) / 1000;
+	cpu_power_compute_time = (ts_stop_power_compute.tv_sec - ts_start_power_compute.tv_sec)*1000000000 + 
+							 (ts_stop_power_compute.tv_nsec - ts_start_power_compute.tv_nsec);
+	cpu_mult_compute_time = (ts_stop_mult_compute.tv_sec - ts_stop_power_compute.tv_sec)*1000000000 + 
+							(ts_stop_mult_compute.tv_nsec - ts_stop_power_compute.tv_nsec);
+	cpu_variable_compute_time = (ts_stop_variable_compute.tv_sec - ts_start_variable_compute.tv_sec)*1000000000 + 
+					   (ts_stop_variable_compute.tv_nsec - ts_start_variable_compute.tv_nsec);
+	printf("Time spent for power computation CPU:  			      %lf nsec \n",cpu_power_compute_time);
+	printf("Time spent for mult computation CPU:  			      %lf nsec \n",cpu_mult_compute_time);
+	printf("Time spent for variable computation CPU:  			   %lf nsec \n",cpu_mult_compute_time);
 	printf("Time spent for computation CPU:  			      %lf usec \n\n\n",cpu_compute_time);
 
 	return 0;
